@@ -1,0 +1,7 @@
+name = "SARProcessing"
+uuid = "f3128dc3-44ca-4ad6-8356-fc70777d194e"
+authors = ["lupemba "]
+version = "0.1.0"
+
+[deps]
+Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
