@@ -3,8 +3,9 @@
 """
 General metadata need for SAR images
 """
-struct MetaData
+struct MetaDataSLC
     polarisation::String
+    swath::Int
     sensingTime::DateTime
     frequencyInMHz::Float64
 end
@@ -13,17 +14,8 @@ end
 """
 General subset for complex swath
 """
-struct ComplexSwath
-    swath::Int
+struct SwathSLC
+    metadata::MetaDataSLC ## Sentinel 1 images has a metadata file for each swath
     indexOffset::Tuple{Int,Int}
     pixels::Array{Complex,2}
-end
-
-
-"""
-A complex image with 1 or more swaths
-"""
-struct ComplexImage
-    metadata::MetaData
-    swathArray::Array{ComplexSwath,1}
 end
