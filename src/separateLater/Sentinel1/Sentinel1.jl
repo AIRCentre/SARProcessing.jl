@@ -1,6 +1,7 @@
 module Sentinel1
 import SARProcessing
+using Dates
 
-exampleFunction2() = true
+include("Sentinel1Types.jl")
 
-end # module Sentinel1
+end
