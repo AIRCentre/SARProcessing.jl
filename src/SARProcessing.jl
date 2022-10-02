@@ -1,11 +1,8 @@
 module SARProcessing
-export greet, Sentinel1
 
-include("Sentinel1.jl");
+include("SARTypes.jl")
 
-function greet(a)
-    print("Hello World! $a");
-    return "Hello World! $a" ;
-end
+
+exampleFunction1() = true
 
 end # module SARProcessing
