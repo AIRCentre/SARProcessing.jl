@@ -38,6 +38,6 @@ Manifest.toml
 # Other large files
 *.zip
 
-# Hidden mac files
+# Hidden mac files and jupyter notebook checkpoints
 .*
 !/.gitignore
