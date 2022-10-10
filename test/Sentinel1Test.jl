@@ -21,7 +21,7 @@ import .Sentinel1
 
     function constructSwathSLCTest() 
         testSwath = createSwathSLC()
-        return testSwath.metadata.swath == 1 && size(testSwath.pixels) == (2,3)
+        return testSwath.metadata.polarisation == "VV" && testSwath.metadata.swath == 1 && size(testSwath.pixels) == (2,3)
     end
 
 
