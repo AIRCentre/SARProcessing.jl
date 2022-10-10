@@ -4,7 +4,7 @@ import .Sentinel1
 
 @testset "Sentinel1.jl" begin
      
-    ####### Generate test data ##############
+    ####### Helper function ##############
     createMetaData() = Sentinel1.MetaDataSLC("VV",1,Sentinel1.DateTime(2013,7,1,12,30,59),5405)
     
     function createSwathSLC() 
@@ -15,13 +15,35 @@ import .Sentinel1
 
      ####### Test functions ##############
     function constructMetaDataTest() 
+        ## Arrange
+        
+        ## Act
         testMeta = createMetaData()
-        return testMeta.polarisation == "VV" && testMeta.frequencyInMHz == 5405
+        
+        ## Assert
+        testOk = testMeta.polarisation == "VV" && testMeta.frequencyInMHz == 5405
+
+        return testOk
     end
 
     function constructSwathSLCTest() 
+        ## Arrange
+
+        ## Act
         testSwath = createSwathSLC()
-        return testSwath.metadata.swath == 1 && size(testSwath.pixels) == (2,3)
+        
+        ## Assert
+        swathNumber = testSwath.metadata.swath
+        datasize = size(testSwath.pixels)
+        testOk = swathNumber == 1 && datasize == (2,3)
+        
+        if !testOk
+            println("Debug info: ", String(Symbol(constructSwathSLCTest)))
+            println("swathNumber: ", swathNumber)
+            println("datasize: ", datasize)
+        end
+
+        return testOk
     end
 
 
