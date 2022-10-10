@@ -31,16 +31,19 @@ import .Sentinel1
 
         ## Act
         testSwath = createSwathSLC()
-        
+   
         ## Assert
         swathNumber = testSwath.metadata.swath
         datasize = size(testSwath.pixels)
-        testOk = swathNumber == 1 && datasize == (2,3)
+        polarisation = testSwath.metadata.polarisation 
+
+        testOk = swathNumber == 1 && datasize == (2,3) && polarisation == "VV"
         
         if !testOk
             println("Debug info: ", String(Symbol(constructSwathSLCTest)))
             println("swathNumber: ", swathNumber)
             println("datasize: ", datasize)
+            println("polarization: ", polarisation)
         end
 
         return testOk
