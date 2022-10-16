@@ -1,5 +1,5 @@
 
-
+import ArchGDAL
 
 
 """
@@ -15,8 +15,23 @@ end
 readSwathSLC(filepath::String)
 Returns: ::SwathSLC
 """
-function readSwathSLC(filepath::String, window)
-    error("Not implemented")
+function readSwathSLC(filepath::String, window=nothing)
+
+    dataset = ArchGDAL.readraster(filepath)
+
+    if window[1][2] > ArchGDAL.width(dataset)
+        @warn "The window exceeds the dataset width $(ArchGDAL.width(dataset))."
+    end
+    if window[2][2] > ArchGDAL.height(dataset)
+        @warn "The window exceeds the dataset height $(ArchGDAL.height(dataset))."
+    end
+
+    if !isnothing(window)
+        dataset = dataset[window[1][1]:window[1][2],window[2][1]:window[2][2],1]
+    end
+
+    ## The sentinel 1 images are Complex{Int64} this conversion multiplies the data with 4 but is need for future computations.
+    return convert.(Complex{Float64}, dataset)
 end
 
 
