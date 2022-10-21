@@ -12,9 +12,9 @@ end
 
 
 """
-    readSwathSLC(filepath::String, window=nothing)
+    readTiff(filepath::String, window=nothing, convertToDouble = true)
 
-    Read a Sentinel 1 Single Look Complex (SLC) swath from a tiff file.
+    Read a Sentinel 1 tiff file.
     # Examples:
     ```jldoctest
     julia> filepath = "s1a-iw3-slc-vv-20220918t074921-20220918t074946-045056-056232-006.tiff"
@@ -25,7 +25,7 @@ end
     (100,150)
     ```
 """
-function readSwathSLC(filepath::String, window=nothing)
+function readTiff(filepath::String, window=nothing, convertToDouble = true)
 
     dataset = ArchGDAL.readraster(filepath)
 
@@ -38,10 +38,20 @@ function readSwathSLC(filepath::String, window=nothing)
 
     if !isnothing(window)
         dataset = dataset[window[1][1]:window[1][2],window[2][1]:window[2][2],1]
+    else
+        dataset = dataset[:,:,1]
     end
 
-    ## The sentinel 1 images are Complex{Int64} this conversion multiplies the data with 4 but is need for future computations.
-    return convert.(Complex{Float64}, dataset)
+    ## Make sure that the data type is float for future computations.
+    if convertToDouble
+        if eltype(dataset) <: Complex
+            dataset = convert.(Complex{Float64}, dataset)
+        else
+            dataset = convert.(Float64, dataset)
+        end
+    end
+
+    return dataset
 end
 
 

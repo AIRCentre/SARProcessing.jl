@@ -51,7 +51,7 @@ function constructSwathSLCTest()
 end
 
 
-function readSLCSwathTest() 
+function readReadTiffTest() 
     ## Arrange
     filePath = "testData/largeFiles/S1A_IW_SLC__1SDV_20220918T074920_20220918T074947_045056_056232_62D6.SAFE/measurement/s1a-iw3-slc-vv-20220918t074921-20220918t074946-045056-056232-006.tiff"
     window = [(501,600),(501,650)]
@@ -64,7 +64,7 @@ function readSLCSwathTest()
     end
 
     ## Act
-    swath = Sentinel1.readSwathSLC(filePath, window)
+    swath = Sentinel1.readTiff(filePath, window)
 
     ## Assert
     checkType = typeof(swath)== Matrix{ComplexF64}
@@ -88,5 +88,5 @@ end
     ####### actual tests ###############
     @test constructMetaDataTest() 
     @test constructSwathSLCTest()
-    @test readSLCSwathTest()
+    @test readReadTiffTest()
 end
