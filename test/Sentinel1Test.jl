@@ -1,5 +1,6 @@
 
 include("../src/separateLater/Sentinel1/Sentinel1.jl")
+using Test
 import .Sentinel1
 
      
