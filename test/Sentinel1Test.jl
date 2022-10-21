@@ -60,7 +60,6 @@ function readSLCSwathTest()
         return true
     end
 
-
     ## Act
     swath = Sentinel1.readSwathSLC(filePath, window)
 
