@@ -52,11 +52,13 @@ end
 
 function readSLCSwathTest() 
     ## Arrange
-    filePath = "/Users/lupemba/Downloads/S1A_IW_SLC__1SDV_20220918T074920_20220918T074947_045056_056232_62D6.SAFE/measurement/s1a-iw3-slc-vv-20220918t074921-20220918t074946-045056-056232-006.tiff"
+    filePath = "testData/largeFiles/S1A_IW_SLC__1SDV_20220918T074920_20220918T074947_045056_056232_62D6.SAFE/measurement/s1a-iw3-slc-vv-20220918t074921-20220918t074946-045056-056232-006.tiff"
     window = [(501,600),(501,650)]
 
     if !isfile(filePath)
-        println("Test image not found. Contact lupemba for the image")
+        println("Debug info: ", String(Symbol(readSLCSwathTest)))
+        println("S1A_IW_SLC__1SDV_20220918T074920_20220918T074947_045056_056232_62D6.SAFE not found")
+        println("Test skipped")
         return true
     end
 
@@ -86,5 +88,4 @@ end
     @test constructMetaDataTest() 
     @test constructSwathSLCTest()
     @test readSLCSwathTest()
-
 end
