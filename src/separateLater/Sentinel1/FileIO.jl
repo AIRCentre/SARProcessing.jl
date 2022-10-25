@@ -29,17 +29,21 @@ function readTiff(filepath::String, window=nothing, convertToDouble = true)
 
     dataset = ArchGDAL.readraster(filepath)
 
-    if window[1][2] > ArchGDAL.width(dataset)
-        @warn "The window exceeds the dataset width $(ArchGDAL.width(dataset))."
-    end
-    if window[2][2] > ArchGDAL.height(dataset)
-        @warn "The window exceeds the dataset height $(ArchGDAL.height(dataset))."
-    end
-
-    if !isnothing(window)
-        dataset = dataset[window[1][1]:window[1][2],window[2][1]:window[2][2],1]
-    else
+    if isnothing(window)
+       
         dataset = dataset[:,:,1]
+    
+    else
+        
+        if window[1][2] > ArchGDAL.width(dataset)
+            @warn "The window exceeds the dataset width $(ArchGDAL.width(dataset))."
+        end
+        if window[2][2] > ArchGDAL.height(dataset)
+            @warn "The window exceeds the dataset height $(ArchGDAL.height(dataset))."
+        end
+
+        dataset = dataset[window[1][1]:window[1][2],window[2][1]:window[2][2],1]
+    
     end
 
     ## Make sure that the data type is float for future computations.
