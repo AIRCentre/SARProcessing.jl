@@ -25,7 +25,7 @@ end
     (100,150)
     ```
 """
-function readTiff(filepath::String, window=nothing, convertToDouble = true)
+function readTiff(filepath::String, window=nothing; convertToDouble = true,flip = true)
 
     dataset = ArchGDAL.readraster(filepath)
 
@@ -35,15 +35,21 @@ function readTiff(filepath::String, window=nothing, convertToDouble = true)
     
     else
         
-        if window[1][2] > ArchGDAL.width(dataset)
+        if window[2][2] > ArchGDAL.width(dataset)
             @warn "The window exceeds the dataset width $(ArchGDAL.width(dataset))."
         end
-        if window[2][2] > ArchGDAL.height(dataset)
+        if window[1][2] > ArchGDAL.height(dataset)
             @warn "The window exceeds the dataset height $(ArchGDAL.height(dataset))."
         end
 
-        dataset = dataset[window[1][1]:window[1][2],window[2][1]:window[2][2],1]
+        dataset = dataset[window[2][1]:window[2][2],window[1][1]:window[1][2],1]
     
+    end
+
+    # Tiff file have flipped Width and hight compare to julia 2d Matrix
+    if flip 
+        # Flip array dimentions so index 1 is approximately latitude direction and index 2 lattitude
+        dataset = permutedims(dataset, (2, 1));
     end
 
     ## Make sure that the data type is float for future computations.
@@ -57,6 +63,9 @@ function readTiff(filepath::String, window=nothing, convertToDouble = true)
 
     return dataset
 end
+
+
+
 
 
 """

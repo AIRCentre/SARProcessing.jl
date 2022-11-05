@@ -1,9 +1,38 @@
 
 include("../src/separateLater/Sentinel1/Sentinel1.jl")
 using Test
-import .Sentinel1
+import .Sentinel1, ArchGDAL
 
-     
+
+const slcSubsetWindow = [(9800,10400),(11000,12400)]
+const slcSubsetPath = "testData/s1a-iw3-slc-vv_subset_hight9800_10400_width11000_11000.tiff"
+
+###### Function to create testdata
+
+## createSLCsubset() is only included as a reference to show how the slc subset is made
+function createSLCsubset()
+    filePath = "testData/largeFiles/S1A_IW_SLC__1SDV_20220918T074920_20220918T074947_045056_056232_62D6.SAFE/measurement/s1a-iw3-slc-vv-20220918t074921-20220918t074946-045056-056232-006.tiff"
+    
+    if !isfile(filePath)
+        println("S1A_IW_SLC__1SDV_20220918T074920_20220918T074947_045056_056232_62D6.SAFE not found")
+    end
+
+    swathSub = Sentinel1.readTiff(filePath, slcSubsetWindow, convertToDouble=false)
+    
+    ArchGDAL.create(
+        slcSubsetPath,
+        driver = ArchGDAL.getdriver("GTiff"),
+        width=size(swathSub)[2],
+        height=size(swathSub)[1],
+        nbands=1,
+        dtype=eltype(swathSub)
+    ) do newFile
+        ArchGDAL.write!(newFile,  permutedims(swathSub, (2, 1)), 1)
+    end
+
+end
+
+
 ####### Helper function ##############
 createMetaData() = Sentinel1.MetaDataSLC("VV",1,Sentinel1.DateTime(2013,7,1,12,30,59),5405)
 
@@ -13,7 +42,8 @@ function createSwathSLC()
     return Sentinel1.SwathSLC(metaData, (20,50),pixels)
 end
 
-    ####### Test functions ##############
+
+####### Test functions ##############
 function constructMetaDataTest() 
     ## Arrange
     
@@ -53,18 +83,10 @@ end
 
 function readReadTiffTest() 
     ## Arrange
-    filePath = "testData/largeFiles/S1A_IW_SLC__1SDV_20220918T074920_20220918T074947_045056_056232_62D6.SAFE/measurement/s1a-iw3-slc-vv-20220918t074921-20220918t074946-045056-056232-006.tiff"
-    window = [(501,600),(501,650)]
-
-    if !isfile(filePath)
-        println("Debug info: ", String(Symbol(readSLCSwathTest)))
-        println("S1A_IW_SLC__1SDV_20220918T074920_20220918T074947_045056_056232_62D6.SAFE not found")
-        println("Test skipped")
-        return true
-    end
+    window = [(100,200),(200,550)]
 
     ## Act
-    swath = Sentinel1.readTiff(filePath, window)
+    swath = Sentinel1.readTiff(slcSubsetPath, window)
 
     ## Assert
     checkType = typeof(swath)== Matrix{ComplexF64}
@@ -83,6 +105,7 @@ function readReadTiffTest()
 
     return testOk
 end
+
 
 @testset "Sentinel1.jl" begin
     ####### actual tests ###############
