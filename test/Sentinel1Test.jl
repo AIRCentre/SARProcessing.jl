@@ -81,7 +81,7 @@ function constructSwathSLCTest()
 end
 
 
-function readReadTiffTest() 
+function readTiffTest() 
     ## Arrange
     window = [(100,200),(200,550)]
 
@@ -111,5 +111,5 @@ end
     ####### actual tests ###############
     @test constructMetaDataTest() 
     @test constructSwathSLCTest()
-    @test readReadTiffTest()
+    @test readTiffTest()
 end

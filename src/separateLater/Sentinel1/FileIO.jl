@@ -48,7 +48,7 @@ function readTiff(filepath::String, window=nothing; convertToDouble = true,flip 
 
     # Tiff file have flipped Width and hight compare to julia 2d Matrix
     if flip 
-        # Flip array dimentions so index 1 is approximately latitude direction and index 2 lattitude
+        # Flip array dimentions so index 1 is approximately lattitude direction and index 2 longitude
         dataset = permutedims(dataset, (2, 1));
     end
 
