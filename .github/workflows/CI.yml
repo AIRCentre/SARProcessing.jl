@@ -22,9 +22,9 @@ jobs:
           - '1.8'
           - 'nightly'
         os:
-          - ubuntu-latest
+          - [ubuntu-latest, windows-latest, macOS-latest]
         arch:
-          - x64
+          - [x64, x86]
     steps:
       - uses: actions/checkout@v2
       - uses: julia-actions/setup-julia@v1
