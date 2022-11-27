@@ -71,7 +71,7 @@ function constructSwathSLCTest()
     
     ## Debug
     if !testOk
-        println("Debug info: ", String(Symbol(constructSwathSLCTest)))
+        println("Debug info: ", string(StackTraces.stacktrace()[1].func))
         println("swathNumber: ", swathNumber)
         println("datasize: ", datasize)
         println("polarization: ", polarisation)
@@ -97,6 +97,7 @@ function readTiffTest()
 
     ## Debug
     if !testOk
+        println("Debug info: ", string(StackTraces.stacktrace()[1].func))
         println(checkType)
         println("type of: ", typeof(swath))
         println("size: ", size(swath))
