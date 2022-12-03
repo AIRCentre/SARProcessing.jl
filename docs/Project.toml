@@ -1,3 +1,4 @@
 [deps]
 Documenter = "e30172f5-a6a5-5a46-863b-614d45cd2de4"
 SARProcessing = "f3128dc3-44ca-4ad6-8356-fc70777d194e"
+ArchGDAL = "c9ce4bd3-c3d5-55b8-8973-c0e20141b8c3"
