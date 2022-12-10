@@ -17,7 +17,7 @@ function createSLCsubset()
         println("S1A_IW_SLC__1SDV_20220918T074920_20220918T074947_045056_056232_62D6.SAFE not found")
     end
 
-    swathSub = Sentinel1.readTiff(filePath, slcSubsetWindow, convertToDouble=false)
+    swathSub = Sentinel1.loadTiff(filePath, slcSubsetWindow, convertToDouble=false)
     
     ArchGDAL.create(
         slcSubsetPath,
@@ -81,12 +81,12 @@ function constructSwathSLCTest()
 end
 
 
-function readTiffTest() 
+function loadTiffTest() 
     ## Arrange
     window = [(100,200),(200,550)]
 
     ## Act
-    swath = Sentinel1.readTiff(slcSubsetPath, window)
+    swath = Sentinel1.loadTiff(slcSubsetPath, window)
 
     ## Assert
     checkType = typeof(swath)== Matrix{ComplexF64}
@@ -112,5 +112,5 @@ end
     ####### actual tests ###############
     @test constructMetaDataTest() 
     @test constructSwathSLCTest()
-    @test readTiffTest()
+    @test loadTiffTest()
 end

@@ -1,5 +1,7 @@
 module SARProcessing
+import ArchGDAL
 
+include("Utils/DEM.jl")
 include("SARTypes.jl")
 
 

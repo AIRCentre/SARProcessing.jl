@@ -12,7 +12,7 @@ end
 
 
 """
-    readTiff(filepath::String, window=nothing, convertToDouble = true)
+    loadTiff(filepath::String, window=nothing, convertToDouble = true)
 
     Read a Sentinel 1 tiff file.
     # Examples:
@@ -25,7 +25,7 @@ end
     (100,150)
     ```
 """
-function readTiff(filepath::String, window=nothing; convertToDouble = true,flip = true)
+function loadTiff(filepath::String, window=nothing; convertToDouble = true,flip = true)
 
     dataset = ArchGDAL.readraster(filepath)
 
@@ -69,10 +69,10 @@ end
 
 
 """
-readSLC(folder::String, window)
+loadSLC(folder::String, window)
 Returns: ::Array{SwathSLC,1}
 """
-function readSLC(folder::String, window)
+function loadSLC(folder::String, window)
     error("Not implemented")
     ## use readMetaDataSLC(filepath::String) to read the MetaData
     ## use readSwathSLC(filepath::String, window) to read the swath
