@@ -38,6 +38,13 @@ Manifest.toml
 # Other large files
 *.zip
 
+# Large testfiles
+test/testData/largeFiles
+
 # Hidden mac files and jupyter notebook checkpoints
 .*
 !/.gitignore
+!/.github
+
+# Include sentinel 1 slc subset (size 3.4 Mb)
+!test/testData/s1a-iw3-slc-vv_subset_hight9800_10400_width11000_11000.tiff
