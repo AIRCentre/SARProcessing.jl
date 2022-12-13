@@ -5,6 +5,7 @@ import  SARProcessing
     include("SARProcessingTest.jl")
     include("Sentinel1Test.jl")
     include("VisualiseSARTest.jl")
+    include("preciseorbitsTest.jl")
 end
 
 
