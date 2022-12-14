@@ -676,7 +676,9 @@ function BurstsInfo(metadict)::BurstsInfo
     #number of bursts.
     numberOfBurst = floor(Int, size(metadict["product"]["swathTiming"]["burstList"]["burst"])[1])
     #getting each burst
-    bursts = [Burst(metadict,floor(Int, number)) for number in range(1,numberOfBurst,numberOfBurst)]
+    burstRange = 1.0:1.0:numberOfBurst 
+    bursts = [Burst(metadict,floor(Int, number)) for number in burstRange]
+    #bursts = [Burst(metadict,floor(Int, number)) for number in range(start = 1, stop=numberOfBurst, step=1)]
     #For each burst, getting the dopplerCentroids and derived info
     #maybe use header,swathtimin,imageinfo etc. as input to function to save time. Currentluy calling each funciton twice.
     dopplerCentroids = [DopplerCentroid(metadict,
