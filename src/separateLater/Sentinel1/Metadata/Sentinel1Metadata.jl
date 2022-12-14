@@ -513,7 +513,7 @@ function Burst(metadict,burstNumber::Int=1)::Burst
     lastValidSample = parse.(Int,split(burst["lastValidSample"][""]))
     burstId = parse.(Int64,split(burst["burstId"][""]))[1]
     absoluteBurstId = parse.(Int,split(burst["burstId"][:absolute]))[1]
-
+    
     burst = Burst(burstNumber, 
                         azimuthTime,
                         sensingTime,
