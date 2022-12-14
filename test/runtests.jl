@@ -1,10 +1,16 @@
 using Test
 import  SARProcessing
-import Dates
+using Dates
+import .Sentinel1, ArchGDAL
+
+include("../src/separateLater/Sentinel1/Sentinel1.jl")
 
 const PRECISE_ORBIT_TEST_FILE = "testData/S1A_OPER_AUX_POEORB_20221119T081845.EOF"
+const xmlFile = "testData/s1a-iw3-slc-vv-20220918t074921-20220918t074946-045056-056232-006.xml"
+
 
 @testset "Test of repos" begin
+    include("Sentinel1MetadataTest.jl")
     include("SARProcessingTest.jl")
     include("Sentinel1Test.jl")
     include("VisualiseSARTest.jl")

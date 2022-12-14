@@ -1,7 +1,7 @@
 
-include("../src/separateLater/Sentinel1/Sentinel1.jl")
-using Test
-import .Sentinel1, ArchGDAL
+
+
+
 
 
 const slcSubsetWindow = [(9800,10400),(11000,12400)]
