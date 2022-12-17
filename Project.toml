@@ -14,3 +14,4 @@ XMLDict = "228000da-037f-5747-90a9-8195ccbf91a5"
 [compat]
 ArchGDAL = "0.9"
 Images = "0.25"
+XMLDict = "0.4"
