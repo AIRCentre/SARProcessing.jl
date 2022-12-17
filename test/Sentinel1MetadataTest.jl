@@ -155,12 +155,12 @@ function BurstTest()
     ## Assert
     check = burstinfo.numberOfBurst == 9
     check &= length(burstinfo.bursts) == 9
-    check &= isapprox(burstinfo.bursts[1].dcT0,0.00534423320003329; atol = 0.000000001)
-    check &= isapprox(burstinfo.bursts[8].dcT0,0.005342927742124565; atol = 0.000000001)
-    check &= length(burstinfo.bursts[1].azimuthFmRatePolynomial) == 3
-    check &= burstinfo.bursts[5].burstMidTime == Millisecond(12588)
+    check &= isapprox(burstinfo.bursts[1].dopplerCentroid.dcT0,0.00534423320003329; atol = 0.000000001)
+    check &= isapprox(burstinfo.bursts[8].dopplerCentroid.dcT0,0.005342927742124565; atol = 0.000000001)
+    check &= length(burstinfo.bursts[1].azimuthFmRates.azimuthFmRatePolynomial) == 3
+    check &= burstinfo.bursts[5].dopplerCentroid.burstMidTime == Millisecond(12588)
     check &= burstinfo.bursts[3].sensingTime == DateTime(2022,09,18,07,49,28,166)   
-    check &= isapprox(burstinfo.bursts[2].azimuthFmRateT0 ,0.006018535512387027; atol = 0.000001) 
+    check &= isapprox(burstinfo.bursts[2].azimuthFmRates.azimuthFmRateT0 ,0.006018535512387027; atol = 0.000001) 
 
     # add stuff later
 

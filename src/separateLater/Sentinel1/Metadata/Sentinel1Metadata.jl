@@ -81,35 +81,6 @@ Base.@kwdef struct SwathTiming
 end
 
 
-"""
-Burst
-
-returns structure of Burst from metadata in .xml
-Burst contain information from DopplerCentroid and AzimuthFmRate
-"""
-Base.@kwdef struct Burst
-    burstNumber::Int32
-    azimuthTime::DateTime
-    sensingTime::DateTime
-    azimuthAnxTime::Millisecond
-    byteOffset::Int64
-    firstValidSample::Vector{Int64}
-    lastValidSample::Vector{Int64}
-    burstId::Int64
-    absoluteBurstId::Int64
-    fmTimesDiff::Vector{Millisecond}
-    bestFmIndex::Int64
-    azimuthFmRatePolynomial::Vector{Float64}
-    azimuthFmRateT0::Float64
-    numberOfDopplerCentroids::Int64
-    burstTime::Millisecond
-    burstMidTime::Millisecond
-    dcTimeDifferences::Vector{Millisecond}
-    bestDcIndex::Int64
-    dataDcPolynomial::Vector{Float64}
-    dcT0::Float64
-    firstLineMosaic::Int64
-end
 
 
 """
@@ -144,6 +115,31 @@ Base.@kwdef struct AzimuthFmRate
     azimuthFmRatePolynomial::Vector{Float64}
     azimuthFmRateT0::Float64
 end
+
+
+
+
+"""
+Burst
+
+returns structure of Burst from metadata in .xml
+Burst contain information from DopplerCentroid and AzimuthFmRate
+"""
+Base.@kwdef struct Burst
+    burstNumber::Int32
+    azimuthTime::DateTime
+    sensingTime::DateTime
+    azimuthAnxTime::Millisecond
+    byteOffset::Int64
+    firstValidSample::Vector{Int64}
+    lastValidSample::Vector{Int64}
+    burstId::Int64
+    absoluteBurstId::Int64
+    azimuthFmRates::AzimuthFmRate
+    dopplerCentroid::DopplerCentroid
+end
+
+
 
 
 """
@@ -531,18 +527,8 @@ function Burst(metadict,burstNumber::Int=1)::Burst
                         lastValidSample,
                         burstId,
                         absoluteBurstId,
-                        azimuthFmRates.fmTimesDiff,
-                        azimuthFmRates.bestFmIndex,
-                        azimuthFmRates.azimuthFmRatePolynomial,
-                        azimuthFmRates.azimuthFmRateT0,
-                        dopplerCentroid.numberOfDopplerCentroids,
-                        dopplerCentroid.burstTime,
-                        dopplerCentroid.burstMidTime,
-                        dopplerCentroid.dcTimeDifferences,
-                        dopplerCentroid.bestDcIndex,
-                        dopplerCentroid.dataDcPolynomial,
-                        dopplerCentroid.dcT0,
-                        dopplerCentroid.firstLineMosaic,
+                        azimuthFmRates,
+                        dopplerCentroid
                         )
     return burst
 end
