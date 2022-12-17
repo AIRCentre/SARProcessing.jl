@@ -17,7 +17,7 @@ function geodetic2ecef_longitude0_test(latitude,height, use_longitude180::Bool)
     z = ecef_coordinate[3]
     
 
-    check_y = isapprox(y,0.0, atol=1)  ## points with zero latitude should have 
+    check_y = isapprox(y,0.0, atol=1)  ## points with zero longitude should have y=0
 
     check_x = false 
 
@@ -71,7 +71,7 @@ function geodetic2ecef_latitude0_test(longitude,height)
     z = ecef_coordinate[3]
 
 
-    check_z = isapprox(z,0.0, atol=1)  ## points with zero latitude should have 
+    check_z = isapprox(z,0.0, atol=1)  ## points with zero latitude should have z = 0
 
     check_x = false 
 

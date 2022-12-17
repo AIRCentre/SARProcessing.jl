@@ -20,11 +20,11 @@ function geodetic2ecef(geodetic_coordinate::Array{T,1}; semi_major_axis::Real=WG
     @assert abs(longitude) <= pi
    
     e2 = flattening * (2 - flattening)
-    v = semi_major_axis/sqrt(1- e2*sin(latitude)*sin(latitude))
+    local_radius = semi_major_axis/sqrt(1- e2*sin(latitude)*sin(latitude))
     
-    x=(v+height)*cos(latitude)*cos(longitude)
-    y=(v+height)*cos(latitude)*sin(longitude)
-    z=(v*(1-e2)+height)*sin(latitude)
+    x=(local_radius+height)*cos(latitude)*cos(longitude)
+    y=(local_radius+height)*cos(latitude)*sin(longitude)
+    z=(local_radius*(1-e2)+height)*sin(latitude)
 
     return [x, y, z]
 end
@@ -58,16 +58,16 @@ function ecef2geodetic(ecef_coordinate::Array{T,1};
     delta_height = 1
     delta_latitude = 1
 
-    p = sqrt(x^2+y^2)
-    latitude = atan(z,p./(1-e2))
+    xy_squared_radius = sqrt(x^2+y^2)
+    latitude = atan(z,xy_squared_radius./(1-e2))
     
     while (delta_latitude>tolerance_latitude) | (delta_height>tolerance_height)
         latitude0   = latitude
         height0     = height
 
-        v = semi_major_axis/sqrt(1-e2*sin(latitude)*sin(latitude))
-        height = p*cos(latitude)+z*sin(latitude)-(semi_major_axis^2)/v  # Bowring formula
-        latitude = atan(z, p*(1-e2*v/(v+height)))
+        local_radius = semi_major_axis/sqrt(1-e2*sin(latitude)*sin(latitude))
+        height = xy_squared_radius*cos(latitude)+z*sin(latitude)-(semi_major_axis^2)/local_radius  # Bowring formula
+        latitude = atan(z, xy_squared_radius*(1-e2*local_radius/(local_radius+height)))
         
         delta_latitude  = abs(latitude-latitude0)
         delta_height    = abs(height-height0)
