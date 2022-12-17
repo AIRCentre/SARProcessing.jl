@@ -80,10 +80,12 @@ Base.@kwdef struct SwathTiming
     burstCount::Int32
 end
 
+
 """
 Burst
 
 returns structure of Burst from metadata in .xml
+Burst contain information from DopplerCentroid and AzimuthFmRate
 """
 Base.@kwdef struct Burst
     burstNumber::Int32
@@ -95,17 +97,10 @@ Base.@kwdef struct Burst
     lastValidSample::Vector{Int64}
     burstId::Int64
     absoluteBurstId::Int64
-end
-
-
-
-"""
-DopplerCentroid
-
-returns structure of DopplerCentroid from metadata in .xml
-"""
-Base.@kwdef struct DopplerCentroid
-    burstNumber::Int32
+    fmTimesDiff::Vector{Millisecond}
+    bestFmIndex::Int64
+    azimuthFmRatePolynomial::Vector{Float64}
+    azimuthFmRateT0::Float64
     numberOfDopplerCentroids::Int64
     burstTime::Millisecond
     burstMidTime::Millisecond
@@ -116,13 +111,34 @@ Base.@kwdef struct DopplerCentroid
     firstLineMosaic::Int64
 end
 
+
+"""
+DopplerCentroid
+
+returns structure of DopplerCentroid from metadata in .xml
+DopplerCentroid is calculated for each burst, and is therefore saved in each burst
+"""
+Base.@kwdef struct DopplerCentroid
+    numberOfDopplerCentroids::Int64
+    burstTime::Millisecond
+    burstMidTime::Millisecond
+    dcTimeDifferences::Vector{Millisecond}
+    bestDcIndex::Int64
+    dataDcPolynomial::Vector{Float64}
+    dcT0::Float64
+    firstLineMosaic::Int64
+end
+
+
+
+
 """
 AzimuthFmRate
 
 returns structure of AzimuthFmRate from metadata in .xml
+AzimuthFmRate is calculated for each burst, and is therefore saved in each burst
 """
 Base.@kwdef struct AzimuthFmRate
-    burstNumber::Int32
     fmTimesDiff::Vector{Millisecond}
     bestFmIndex::Int64
     azimuthFmRatePolynomial::Vector{Float64}
@@ -135,20 +151,10 @@ BurstsInfo
 
 Returns a structure, BurstsInfo, containing info of each burst. For each bust, the following is saved in a Vector:
     - Burst: Structure of Burst.
-    - DopplerCentroid: Stucture of DopplerCentroid
-    - AzimuthFmRate: Structure of AzimuthFmRate.
-
-    Info in the 3rd bust can then be fetched as:
-    BurstsInfo[3].burst.azimuthTime
-
-    Likewise, info in the azimuthFmRateT0 for burst 2:
-    burstInfo[2].azimuthFmRate.azimuthFmRateT0
 """
 Base.@kwdef struct BurstsInfo
     numberOfBurst::Int32
     bursts::Vector{Burst}
-    dopplerCentroid::Vector{DopplerCentroid}
-    azimuthFmRate::Vector{AzimuthFmRate}
 end
 
 
@@ -171,11 +177,6 @@ end
 
 
 
-
-
-
-
-
 """
 MetaDataSentinel1:
     Metadata structure for the Sentinel-1 satellite for each burst in the swath.
@@ -191,10 +192,7 @@ MetaDataSentinel1:
     Where BurstsInfo is a structure:
         numberOfBurst::Int64
         bursts::Vector{Burst}
-        dopplerCentroid::Vector{DopplerCentroid}
-        azimuthFmRate::Vector{AzimuthFmRate}
         
-
 Example:
     slcMetadata = MetaDataSentinel1(metaDict)
 
@@ -206,15 +204,6 @@ Example:
     slcMetadata.header.swath --> 1::Int
     slcMetadata.header.mode --> "IW"::String
     slcMetadata.header.polarisation --> "VH"::String
-
-
-Note:
-        Maybe instead of burstInfo have
-            numberOfBurst::Int32
-            bursts::Vector{Burst}
-            dopplerCentroid::Vector{DopplerCentroid}
-            azimuthFmRate::Vector{AzimuthFmRate}
-        directly in the strucutre?
 """
 Base.@kwdef struct MetaDataSentinel1
     header::Header
@@ -227,12 +216,10 @@ end
 
 
 
-
 ######################################################
 ##################### Constructors  ##################
+######## Constructures for all the structures ########
 ######################################################
-
-
 
 
 """"
@@ -489,9 +476,18 @@ Burst
         lastValidSample::Vector{Int64}: An array of integers indicating the offset of the last valid image sample within each range line. This array contains count attribute integers, equal to the linesPerBurst (i.e. one value per range line within the burst), separated by spaces. If a range line does not contain any valid image samples, the integer is set to -1.
         burstId::Int64
         absoluteBurstId::Int64
-
-    The burstNumber can be used as a key to other burst specific strucutres, e.g., the DopplerCentroid.
-
+        fmTimesDiff::Vector{Millisecond}
+        bestFmIndex::Int64
+        azimuthFmRatePolynomial::Vector{Float64}
+        azimuthFmRateT0::Float64
+        numberOfDopplerCentroids::Int64
+        burstTime::Millisecond
+        burstMidTime::Millisecond
+        dcTimeDifferences::Vector{Millisecond}
+        bestDcIndex::Int64
+        dataDcPolynomial::Vector{Float64}
+        dcT0::Float64
+        firstLineMosaic::Int64
     
     Input:
         metaDict[dict]: a dictionary of the metadata.
@@ -513,7 +509,19 @@ function Burst(metadict,burstNumber::Int=1)::Burst
     lastValidSample = parse.(Int,split(burst["lastValidSample"][""]))
     burstId = parse.(Int64,split(burst["burstId"][""]))[1]
     absoluteBurstId = parse.(Int,split(burst["burstId"][:absolute]))[1]
-    
+
+    #DopplerCentroid  for burst 
+    startTime = Header(metadict).startTime
+    linesPerBurst  = SwathTiming(metadict).linesPerBurst
+    azimuthFrequency = ImageInformation(metadict).azimuthFrequency
+    dopplerCentroid = DopplerCentroid(metadict,azimuthTime,startTime,linesPerBurst,azimuthFrequency)
+
+    #AzimuthFmRate for burst 
+    burstMidTime = dopplerCentroid.burstMidTime
+    azimuthFmRates = AzimuthFmRate(metadict,startTime,burstMidTime)
+
+
+
     burst = Burst(burstNumber, 
                         azimuthTime,
                         sensingTime,
@@ -522,10 +530,22 @@ function Burst(metadict,burstNumber::Int=1)::Burst
                         firstValidSample,
                         lastValidSample,
                         burstId,
-                        absoluteBurstId)
+                        absoluteBurstId,
+                        azimuthFmRates.fmTimesDiff,
+                        azimuthFmRates.bestFmIndex,
+                        azimuthFmRates.azimuthFmRatePolynomial,
+                        azimuthFmRates.azimuthFmRateT0,
+                        dopplerCentroid.numberOfDopplerCentroids,
+                        dopplerCentroid.burstTime,
+                        dopplerCentroid.burstMidTime,
+                        dopplerCentroid.dcTimeDifferences,
+                        dopplerCentroid.bestDcIndex,
+                        dopplerCentroid.dataDcPolynomial,
+                        dopplerCentroid.dcT0,
+                        dopplerCentroid.firstLineMosaic,
+                        )
     return burst
 end
-
 
 
 
@@ -537,7 +557,6 @@ DopplerCentroid
 
     It takes a dictionary containing the full sentinel-1 swath metadata and extracts the DopplerCentroid data for a single burst as a structure. 
     The DopplerCentroid structure returns the following:
-        burstNumber::Int64
         numberOfDopplerCentroids::Int64
         burstTime::Millisecond
         burstMidTime::Millisecond
@@ -546,15 +565,13 @@ DopplerCentroid
         dataDcPolynomial::Vector{Float64}
         dcT0::Float64
         firstLineMosaic::Int64
-
-    The burstNumber can be used as a key to other burst specific strucutres, e.g., the Burst data.
-
     
     Input:
         metaDict[dict]: a dictionary of the metadata.
-        burst[Burst]: Burst Structure
-        swathtiming[SwathTiming]: SwathTiming Structure
-        imageInformation[ImageInformation]: ImageInformation Structure
+        burst.azimuthTime
+        header.startTime
+        swathtiming.linesPerBurst
+        imageInformation.azimuthFrequency
 
 
     output:
@@ -565,25 +582,24 @@ DopplerCentroid
         [ ] What is needed? Maybe, e.g., dataDcPolynomial is redudant in the later processing. Could be deleted.
 """
 function DopplerCentroid(metaDict,
-                        burst::Burst,
-                        header::Header,
-                        swathtiming::SwathTiming,
-                        imageInformation::ImageInformation)::DopplerCentroid
+                        azimuthTime::Dates.DateTime,
+                        startTime::Dates.DateTime,
+                        linesPerBurst::Int64,
+                        azimuthFrequency::Float64)::DopplerCentroid
     dopplerCentroids = metaDict["product"]["dopplerCentroid"]["dcEstimateList"]["dcEstimate"]
     numberOfDopplerCentroids = length(dopplerCentroids)
 
-    burstTimes = (burst.azimuthTime-header.startTime)
+    burstTimes = (azimuthTime-startTime)
 
-    burstMidTimes = burstTimes.value + swathtiming.linesPerBurst / (2 * (imageInformation.azimuthFrequency*0.001) ) #burst mid time in milliseconds. frq in Hz.
+    burstMidTimes = burstTimes.value + linesPerBurst / (2 * (azimuthFrequency*0.001) ) #burst mid time in milliseconds. frq in Hz.
     burstMidTimes = Millisecond(floor(Int,round(burstMidTimes)))
-    dcTimeDifferences = [(abs.((DateTime(centroid["azimuthTime"][1:23]) - header.startTime) - burstMidTimes)) for centroid in dopplerCentroids]
+    dcTimeDifferences = [(abs.((DateTime(centroid["azimuthTime"][1:23]) - startTime) - burstMidTimes)) for centroid in dopplerCentroids]
     bestDcIndex = argmin(dcTimeDifferences)
     dataDcPolynomial = [parse(Float64, param) for param in split(dopplerCentroids[bestDcIndex]["dataDcPolynomial"][""])] 
     dcT0 = parse(Float64, dopplerCentroids[bestDcIndex]["t0"])
-    firstLineMosaic = round(Int64,1 + burstTimes.value * imageInformation.azimuthFrequency*0.001)
+    firstLineMosaic = round(Int64,1 + burstTimes.value * azimuthFrequency*0.001)
 
-    dopplerCentroid = DopplerCentroid(burst.burstNumber,
-                                        numberOfDopplerCentroids,
+    dopplerCentroid = DopplerCentroid(numberOfDopplerCentroids,
                                         burstTimes,
                                         burstMidTimes,
                                         dcTimeDifferences,
@@ -593,8 +609,6 @@ function DopplerCentroid(metaDict,
                                         firstLineMosaic)
     return dopplerCentroid
 end
-
-
 
 
 """"
@@ -627,17 +641,16 @@ AzimuthFmRate
     
 """
 function AzimuthFmRate(metadict,
-                        header::Header,
-                        dopplerCentroid::DopplerCentroid)::AzimuthFmRate
+                        startTime::Dates.DateTime,
+                        burstMidTime::Dates.Millisecond)::AzimuthFmRate
     azimuthFmRateList = metadict["product"]["generalAnnotation"]["azimuthFmRateList"]["azimuthFmRate"]
 
-    fmTimesDiff = abs.([(DateTime(azimuthFmRate["azimuthTime"][1:23])-header.startTime) for azimuthFmRate in azimuthFmRateList].-dopplerCentroid.burstMidTime)
+    fmTimesDiff = abs.([(DateTime(azimuthFmRate["azimuthTime"][1:23])-startTime) for azimuthFmRate in azimuthFmRateList].-burstMidTime)
     bestFmIndex = argmin(fmTimesDiff)
     azimuthFmRatePolynomial = [parse(Float64, param) for param in split(azimuthFmRateList[bestFmIndex]["azimuthFmRatePolynomial"][""])]
     azimuthFmRateT0 = parse(Float64, azimuthFmRateList[bestFmIndex]["t0"])
 
     azimuthfmrate = AzimuthFmRate(
-                                dopplerCentroid.burstNumber,
                                 fmTimesDiff,
                                 bestFmIndex,
                                 azimuthFmRatePolynomial,
@@ -654,11 +667,7 @@ BurstsInfo
     Constucture for the BurstsInfo structure. 
 
     It takes a dictionary containing the full sentinel-1 swath metadata and extracts the BurstsInfo data for a all bursts as a structure. 
-    The AzimuthFmRate structure returns the following:
-        numberOfBurst::Int64
-        bursts::Vector{Burst}
-        dopplerCentroid::Vector{DopplerCentroid}
-        azimuthFmRate::Vector{AzimuthFmRate}
+    The burst info has the info and derived data for each bursts.
 
     
     Input:
@@ -675,30 +684,13 @@ BurstsInfo
 function BurstsInfo(metadict)::BurstsInfo
     #number of bursts.
     numberOfBurst = floor(Int, size(metadict["product"]["swathTiming"]["burstList"]["burst"])[1])
-    #getting each burst
+    #Getting data for each burst.
     burstRange = 1.0:1.0:numberOfBurst 
     bursts = [Burst(metadict,floor(Int, number)) for number in burstRange]
-    #bursts = [Burst(metadict,floor(Int, number)) for number in range(start = 1, stop=numberOfBurst, step=1)]
-    #For each burst, getting the dopplerCentroids and derived info
-    #maybe use header,swathtimin,imageinfo etc. as input to function to save time. Currentluy calling each funciton twice.
-    dopplerCentroids = [DopplerCentroid(metadict,
-                                        burst,
-                                        Header(metadict),
-                                        SwathTiming(metadict),
-                                        ImageInformation(metadict)
-                                        ) for burst in bursts]
-    #For each dopplerCentroids, getting the AzimuthFmRate and derived info
-    azimuthFmRates = [AzimuthFmRate(metadict,Header(metadict),centroid) for centroid in dopplerCentroids]
-    #Saving all bursts, dopplerCentroids and azimuthFmRates in a single structure
     burstinfo = BurstsInfo(numberOfBurst,
-                            bursts,
-                            dopplerCentroids,
-                            azimuthFmRates)
+                            bursts)
     return burstinfo
 end
-
-
-
 
 
 """"
@@ -732,7 +724,6 @@ MetaDataSentinel1
 function MetaDataSentinel1(xmlFile::String)::MetaDataSentinel1
 
     metaDict = getDictofXml(xmlFile)
-
     metadata = MetaDataSentinel1(Header(metaDict),
                         ProductInformation(metaDict),
                         ImageInformation(metaDict),

@@ -9,17 +9,12 @@ unitests for the sentinel-1 metadata
 """
 
 
-#include("../src/separateLater/Sentinel1/Metadata/Sentinel1Metadata.jl")
-#import .Sentinel1Metadata
-
-
-
 #############################################
 ########### test for MetaDataSentinel1 ###########
 #############################################
 
 function MetaDataSentinel1Test()
-    slcMetadata = Sentinel1.MetaDataSentinel1(xmlFile)
+    slcMetadata = Sentinel1.MetaDataSentinel1(SENTINEL1_SLC_METADATA_TEST_FILE)
     checkStructures = isdefined(slcMetadata, :header) && isdefined(slcMetadata, :product) && isdefined(slcMetadata, :image) && isdefined(slcMetadata, :swath) && isdefined(slcMetadata, :burstsInfo) && isdefined(slcMetadata, :geolocation)
     if !checkStructures
         println("Error in MetaDataSentinel1Test")
@@ -36,7 +31,7 @@ end
 
 function readXmlTest()
     ## Assert
-    isXML = endswith(xmlFile, ".xml")
+    isXML = endswith(SENTINEL1_SLC_METADATA_TEST_FILE, ".xml")
     ## Debug
     if !isXML
         println("Input is not .xml format")
@@ -47,7 +42,7 @@ function readXmlTest()
     # can the file be read
     if isXML == true
         ## Act
-        metaDict = Sentinel1.getDictofXml(xmlFile)
+        metaDict = Sentinel1.getDictofXml(SENTINEL1_SLC_METADATA_TEST_FILE)
         ## Assert
         readXMLcheck = metaDict != nothing
         ## Debug
@@ -57,7 +52,7 @@ function readXmlTest()
         end
         return isXML && readXMLcheck
     else
-        return isXML
+        return false
     end
 end
 
@@ -73,7 +68,7 @@ end
 
 
 function HeaderTest()
-    metaDict = Sentinel1.getDictofXml(xmlFile)
+    metaDict = Sentinel1.getDictofXml(SENTINEL1_SLC_METADATA_TEST_FILE)
     header = Sentinel1.Header(metaDict)
     #testing if data exists in header
     checkTimes = header.startTime != nothing
@@ -90,7 +85,7 @@ end
 
 function productInformationTest()
 
-    metaDict = Sentinel1.getDictofXml(xmlFile)
+    metaDict = Sentinel1.getDictofXml(SENTINEL1_SLC_METADATA_TEST_FILE)
     product = Sentinel1.ProductInformation(metaDict)
     ## Assert
     checkTypes = typeof(product.rangeSamplingRate) == Float64
@@ -109,40 +104,44 @@ end
 
 function ImageInformationTest()
 
-    metaDict = Sentinel1.getDictofXml(xmlFile)
+    metaDict = Sentinel1.getDictofXml(SENTINEL1_SLC_METADATA_TEST_FILE)
     imageinfo = Sentinel1.ImageInformation(metaDict)
     ## Assert
-    checkTypesImage2 = imageinfo.azimuthFrequency > 50 #frequency shoul be is 485 Hz ish
-    if !checkTypesImage2
+    check = round(Int,imageinfo.azimuthFrequency) == 486 #frequency should be around 486.4 Hz for the Sentinel-1 
+    check &= imageinfo.numberOfSamples == 24203 
+    check &= round(Int,imageinfo.azimuthPixelSpacing) ==14 
+
+    if !check
         println("Error in Image data")
     end
-    return checkTypesImage2
+    return check
 end
 
 
 
 function GeolocationGridTest()
 
-    metaDict = Sentinel1.getDictofXml(xmlFile)
-    geolocation = Sentinel1.GeolocationGrid(metaDict)
+    metaDict = Sentinel1.getDictofXml(SENTINEL1_SLC_METADATA_TEST_FILE)
+    geolocation = Sentinel1.GeolocationGrid(metaDict);
     ## Assert
+ 
+    check = length(geolocation.lines)==210
+    check &= minimum(geolocation.lines) > 0
+    check &= round(Int,minimum(geolocation.longitude)) == -28
+    check &= round(Int,maximum(geolocation.longitude)) == -27
+    check &= round(Int,minimum(geolocation.latitude)) == 38
+    
+    check &= round(Int,minimum(geolocation.height)) == 0
+    check &= round(Int,minimum(geolocation.elevationAngle)) == 37
 
 
-    checkGeolocation1 = minimum(geolocation.lines) > 0
-    checkGeolocation2 = minimum(geolocation.longitude) > -181
-    checkGeolocation3 = minimum(geolocation.latitude) > -181
-    checkGeolocation4 = minimum(geolocation.height) > 0
-    checkGeolocation5 = minimum(geolocation.elevationAngle) > 0
-
-
-    check = checkGeolocation1 && checkGeolocation2 && checkGeolocation3 && checkGeolocation4 && checkGeolocation5
     if !check
         println("Error in GeolocationGridTest")
         println(checkGeolocation1)
         println(checkGeolocation2)
         println(checkGeolocation3)
         println(checkGeolocation4)
-        println(checkGeolocation5)
+        println(checkGeolocation5)        
     end
     return check
 end
@@ -150,18 +149,21 @@ end
 
 function BurstTest()
     #Action
-    metaDict = Sentinel1.getDictofXml(xmlFile)
-    burstinfo = Sentinel1.BurstsInfo(metaDict)
-
-    azimuthTime = [burst.azimuthTime for burst in burstinfo.bursts]
-    lastValidSample = [burst.lastValidSample for burst in burstinfo.bursts]
+    metaDict = Sentinel1.getDictofXml(SENTINEL1_SLC_METADATA_TEST_FILE)
+    burstinfo = Sentinel1.BurstsInfo(metaDict);
 
     ## Assert
-    # checkTypes
-    checkLength = length(azimuthTime) == length(lastValidSample) 
-    
+    check = burstinfo.numberOfBurst == 9
+    check &= length(burstinfo.bursts) == 9
+    check &= isapprox(burstinfo.bursts[1].dcT0,0.00534423320003329; atol = 0.000000001)
+    check &= isapprox(burstinfo.bursts[8].dcT0,0.005342927742124565; atol = 0.000000001)
+    check &= length(burstinfo.bursts[1].azimuthFmRatePolynomial) == 3
+    check &= burstinfo.bursts[5].burstMidTime == Millisecond(12588)
+    check &= burstinfo.bursts[3].sensingTime == DateTime(2022,09,18,07,49,28,166)   
+    check &= isapprox(burstinfo.bursts[2].azimuthFmRateT0 ,0.006018535512387027; atol = 0.000001) 
 
-    check = checkLength 
+    # add stuff later
+
     if !check
         println("Error in Burst")
     end
