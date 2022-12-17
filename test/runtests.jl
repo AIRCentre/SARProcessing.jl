@@ -12,6 +12,7 @@ const SENTINEL1_SLC_METADATA_TEST_FILE = "testData/s1a-iw3-slc-vv-20220918t07492
 @testset "Test of repos" begin
     include("Sentinel1MetadataTest.jl")
     include("SARProcessingTest.jl")
+    include("geometryUtilsTest.jl")
     include("Sentinel1Test.jl")
     include("VisualiseSARTest.jl")
     include("OrbitStateTest.jl")
