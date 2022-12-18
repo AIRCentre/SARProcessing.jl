@@ -111,10 +111,10 @@ function object_locations(binary_array::Matrix{Int64})
 end
     
 
-function get_subset(image,coordiante::Vector{Int64}, subset_size::Vector{Int64}=[75,75])::Matrix{Float64}
+function get_subset(image,coordinate::Vector{Int64}, subset_size::Vector{Int64}=[75,75])
     half_window_row = round(Int64,(subset_size[1]-1)/2);
     half_window_column = round(Int64,(subset_size[2]-1)/2);
-    subset = image[coordiante[1]-half_window_row:coordiante[1]+half_window_row,coordiante[2]-half_window_column:coordiante[2]+half_window_column,:];
+    subset = image[coordinate[1]-half_window_row:coordinate[1]+half_window_row,coordinate[2]-half_window_column:coordinate[2]+half_window_column,:];
     return subset
 end
 
