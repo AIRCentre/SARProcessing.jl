@@ -48,3 +48,7 @@ test/testData/largeFiles
 
 # Include sentinel 1 slc subset (size 3.4 Mb)
 !test/testData/s1a-iw3-slc-vv_subset_hight9800_10400_width11000_11000.tiff
+src/separateLater/Sentinel1/level_0/s1a-iw-raw-s-vv-20220220t144143-20220220t144215-041998-050092-index.dat
+.gitignore
+src/separateLater/Sentinel1/level_0/s1a-iw-raw-s-vv-20220220t144143-20220220t144215-041998-050092-annot.dat
+src/separateLater/Sentinel1/level_0/s1a-iw-raw-s-vv-20220220t144143-20220220t144215-041998-050092.dat
