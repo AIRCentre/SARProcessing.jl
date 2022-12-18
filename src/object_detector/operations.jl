@@ -1,3 +1,6 @@
+module operations
+import Statistics
+
 nanmean(x) = Statistics.mean(filter(!isnan,x))
 nanmean(x,y) = mapslices(nanmean,x,dims=y)
 
@@ -57,9 +60,40 @@ function conv2d(input::Matrix{Float64}, filter::Matrix{Float64}, stride::Int64 =
         ir += stride 
         ic = 1 # Return back to 1 after finish looping over column
     end
-
     return result
 end
 
 
+
+
+function binarize_array(image::Matrix{Float64}, threshold::Float64 = 0.0001)::Matrix{Int64}
+    image[image .> threshold].=1;
+    image[image .< threshold].=0;
+    return round.(Int64,image)
+end
+
+function binarize_array(image::Matrix{Int64}, threshold::Float64 = 0.0001)::Matrix{Int64}
+    return image
+end
+
+
+function mask_array(image::Matrix{Float64}, threshold::Float64 = 0.0001)::Matrix{Float64}
+    image[image .> threshold].=1;
+    image[image .< threshold].=NaN;
+    return image
+end
+
+
+
+function mask_array(image::Matrix{Int64}, threshold::Float64 = 0.0001)::Matrix{Float64}
+    image = convert.(Float32, image)
+    image[image .> 0.5].=1;
+    image[image .< 0.5].=NaN;
+    return image
+end
+
+
+
+
+end
 

@@ -1,3 +1,8 @@
+module filters
+include("operations.jl")
+using .operations
+
+
 """"
 meanFilter
     Creates a mean filter for a iamge
@@ -35,8 +40,8 @@ function sobelFilter(input::Matrix{Float64},
     horizontal = edgeHorizontal()
     vetical = edgeVertical()
     #sobel
-    horizontal_edges = conv2d(input, horizontal, stride, padding)
-    vertical_edges = conv2d(input, vetical, stride, padding)
+    horizontal_edges = operations.conv2d(input, horizontal, stride, padding)
+    vertical_edges = operations.conv2d(input, vetical, stride, padding)
     image = sqrt.(horizontal_edges.^2+ vertical_edges.^2)
     return image
 end
@@ -44,3 +49,5 @@ end
 
 
 #end
+
+end

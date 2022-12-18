@@ -63,8 +63,8 @@ function _cfar_pixel(backgroundWindow::Matrix{Float64}, guard_size::Int64 = 80, 
         end
     end
     # finding statistics for backgroundWindow
-    background_mean = nanmean(backgroundWindow)
-    background_std = nanstd(backgroundWindow)
+    background_mean = operations.nanmean(backgroundWindow)
+    background_std = operations.nanstd(backgroundWindow)
     #comparing background statistics with the pixel in question.
     if target > background_mean+background_std*cfar_threshold
         target = 1
