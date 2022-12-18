@@ -1,5 +1,9 @@
 module operations
+
+
+
 import Statistics
+import Images
 
 nanmean(x) = Statistics.mean(filter(!isnan,x))
 nanmean(x,y) = mapslices(nanmean,x,dims=y)
@@ -77,7 +81,7 @@ function binarize_array(image::Matrix{Int64}, threshold::Float64 = 0.0001)::Matr
 end
 
 
-function mask_array(image::Matrix{Float64}, threshold::Float64 = 0.0001)::Matrix{Float64}
+function mask_array!(image::Matrix{Float64}, threshold::Float64 = 0.0001)::Matrix{Float64}
     image[image .> threshold].=1;
     image[image .< threshold].=NaN;
     return image
@@ -85,7 +89,7 @@ end
 
 
 
-function mask_array(image::Matrix{Int64}, threshold::Float64 = 0.0001)::Matrix{Float64}
+function mask_array!(image::Matrix{Int64}, threshold::Float64 = 0.0001)::Matrix{Float64}
     image = convert.(Float32, image)
     image[image .> 0.5].=1;
     image[image .< 0.5].=NaN;
@@ -93,6 +97,26 @@ function mask_array(image::Matrix{Int64}, threshold::Float64 = 0.0001)::Matrix{F
 end
 
 
+
+
+
+function object_locations(binary_array::Matrix{Int64})
+    #objects using using label components.
+    objects = Images.label_components(binary_array);
+    #finding the center x and y coordinate for each object. 
+    x_coordinate = [round(Int64,Statistics.mean(first.(Tuple.(findall(x->x==j, objects))))) for j in unique(objects)]
+    y_coordinate = [round(Int64,Statistics.mean(last.(Tuple.(findall(x->x==j, objects))))) for j in unique(objects)]
+    object_center = [[x_coordinate[i],y_coordinate[i]] for i in 1:1:length(y_coordinate)]
+    return object_center
+end
+    
+
+function get_subset(image,coordiante::Vector{Int64}, subset_size::Vector{Int64}=[75,75])::Matrix{Float64}
+    half_window_row = round(Int64,(subset_size[1]-1)/2);
+    half_window_column = round(Int64,(subset_size[2]-1)/2);
+    subset = image[coordiante[1]-half_window_row:coordiante[1]+half_window_row,coordiante[2]-half_window_column:coordiante[2]+half_window_column,:];
+    return subset
+end
 
 
 end
