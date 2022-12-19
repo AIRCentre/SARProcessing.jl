@@ -20,19 +20,37 @@ function meanFilter(size::Vector{Int64}=[3,3])::Matrix{Float64}
     return ones(size[1],size[2])./(size[1]*size[2])
 end
 
+""""
+edgeHorizontal
+    Creates a edgeHorizontal for a iamge
 
-
+examples:
+        filter = edgeHorizontal()
+"""
 function edgeHorizontal()::Matrix{Float64}
     return [1 2 1;0 0 0;-1 -2 -1]
 end
 
+""""
+edgeVertical
+    Creates a edgeVertical for a iamge
+
+examples:
+        filter = edgeVertical()
+"""
 function edgeVertical()::Matrix{Float64}
     return [1 0 1;2 0 -1;1 0 -1]
 end
 
 
 
+""""
+sobelFilter(input::Matrix{Float64},stride::Int64 = 1,padding::String="same")::Matrix{Float64}
+    Creates a sobelFilter for a image using edgeVertical() and edgeHorizontal()
 
+examples:
+        sobel_image = filters.sobelFilter(image)
+"""
 function sobelFilter(input::Matrix{Float64},
                     stride::Int64 = 1,
                     padding::String="same")::Matrix{Float64}
@@ -47,7 +65,5 @@ function sobelFilter(input::Matrix{Float64},
 end
 
 
-
-#end
 
 end
