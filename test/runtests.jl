@@ -16,6 +16,9 @@ const SENTINEL1_SLC_METADATA_TEST_FILE = "testData/s1a-iw3-slc-vv-20220918t07492
     include("Sentinel1Test.jl")
     include("VisualiseSARTest.jl")
     include("OrbitStateTest.jl")
+    include("object_detector_cfar_test.jl")
+    include("object_detector_filter_test.jl")
+    include("object_detector_operations_test.jl")
 end
 
 
