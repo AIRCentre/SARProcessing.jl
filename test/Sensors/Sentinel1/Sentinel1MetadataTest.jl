@@ -15,7 +15,7 @@ unitests for the sentinel-1 metadata
 
 function MetaDataSentinel1Test()
     slcMetadata = SARProcessing.MetaDataSentinel1(SENTINEL1_SLC_METADATA_TEST_FILE)
-    checkStructures = isdefined(slcMetadata, :header) && isdefined(slcMetadata, :product) && isdefined(slcMetadata, :image) && isdefined(slcMetadata, :swath) && isdefined(slcMetadata, :burstsInfo) && isdefined(slcMetadata, :geolocation)
+    checkStructures = isdefined(slcMetadata, :header) && isdefined(slcMetadata, :product) && isdefined(slcMetadata, :image) && isdefined(slcMetadata, :swath) && isdefined(slcMetadata, :bursts) && isdefined(slcMetadata, :geolocation)
     if !checkStructures
         println("Error in MetaDataSentinel1Test")
     end
@@ -42,12 +42,12 @@ function readXmlTest()
     # can the file be read
     if isXML == true
         ## Act
-        metaDict = SARProcessing.getDictofXml(SENTINEL1_SLC_METADATA_TEST_FILE)
+        metaDict = SARProcessing.read_xml_as_dict(SENTINEL1_SLC_METADATA_TEST_FILE)
         ## Assert
-        readXMLcheck = metaDict != nothing
+        readXMLcheck = !isnothing(metaDict )
         ## Debug
         if !readXMLcheck
-            println("Can't load XML file. Error in getDictofXml() ")
+            println("Can't load XML file. Error in read_xml_as_dict() ")
             println(readXMLcheck)
         end
         return isXML && readXMLcheck
@@ -68,16 +68,16 @@ end
 
 
 function HeaderTest()
-    metaDict = SARProcessing.getDictofXml(SENTINEL1_SLC_METADATA_TEST_FILE)
-    header = SARProcessing.Header(metaDict)
+    metaDict = SARProcessing.read_xml_as_dict(SENTINEL1_SLC_METADATA_TEST_FILE)
+    header = SARProcessing.Sentinel1Header(metaDict)
     #testing if data exists in header
-    checkTimes = header.startTime != nothing
-    checkTypes = typeof(header.startTime) == DateTime && typeof(header.stopTime) == DateTime
+    checkTimes = !isnothing(header.start_time)
+    checkTypes = typeof(header.start_time) == DateTime && typeof(header.stop_time) == DateTime
     check = checkTimes && checkTypes
     if !check
-        println("Error in Header")
-        println("Start time ", header.startTime)
-        println("Stop time: ", header.stopTime)
+        println("Error in Sentinel1Header")
+        println("Start time ", header.start_time)
+        println("Stop time: ", header.stop_time)
     end
     return check
 end
@@ -85,18 +85,18 @@ end
 
 function productInformationTest()
 
-    metaDict = SARProcessing.getDictofXml(SENTINEL1_SLC_METADATA_TEST_FILE)
-    product = SARProcessing.ProductInformation(metaDict)
+    metaDict = SARProcessing.read_xml_as_dict(SENTINEL1_SLC_METADATA_TEST_FILE)
+    product = SARProcessing.Sentinel1ProductInformation(metaDict)
     ## Assert
-    checkTypes = typeof(product.rangeSamplingRate) == Float64
-    checkrangeSamplingRate = product.rangeSamplingRate > 0
-    checkTypesProduct2 = product.radarFrequency > 5 #frq should be 5.4 Ghz ish
+    checkTypes = typeof(product.range_sampling_rate) == Float64
+    checkrange_sampling_rate = product.range_sampling_rate > 0
+    checkTypesProduct2 = product.radar_frequency > 5 #frq should be 5.4 Ghz ish
 
 
-    check = checkrangeSamplingRate && checkTypes && checkTypesProduct2
+    check = checkrange_sampling_rate && checkTypes && checkTypesProduct2
     if !check 
         println("Error in Product data")
-        println("Samplig rate", product.rangeSamplingRate, "of type ", typeof(product.rangeSamplingRate))
+        println("Samplig rate", product.range_sampling_rate, "of type ", typeof(product.range_sampling_rate))
     end
     return check
 end
@@ -104,12 +104,12 @@ end
 
 function ImageInformationTest()
 
-    metaDict = SARProcessing.getDictofXml(SENTINEL1_SLC_METADATA_TEST_FILE)
-    imageinfo = SARProcessing.ImageInformation(metaDict)
+    metaDict = SARProcessing.read_xml_as_dict(SENTINEL1_SLC_METADATA_TEST_FILE)
+    imageinfo = SARProcessing.Sentinel1ImageInformation(metaDict)
     ## Assert
-    check = round(Int,imageinfo.azimuthFrequency) == 486 #frequency should be around 486.4 Hz for the Sentinel-1 
-    check &= imageinfo.numberOfSamples == 24203 
-    check &= round(Int,imageinfo.azimuthPixelSpacing) ==14 
+    check = round(Int,imageinfo.azimuth_frequency) == 486 #frequency should be around 486.4 Hz for the Sentinel-1 
+    check &= imageinfo.number_of_samples == 24203 
+    check &= round(Int,imageinfo.azimuth_pixel_spacing) ==14 
 
     if !check
         println("Error in Image data")
@@ -121,7 +121,7 @@ end
 
 function GeolocationGridTest()
 
-    metaDict = SARProcessing.getDictofXml(SENTINEL1_SLC_METADATA_TEST_FILE)
+    metaDict = SARProcessing.read_xml_as_dict(SENTINEL1_SLC_METADATA_TEST_FILE)
     geolocation = SARProcessing.GeolocationGrid(metaDict);
     ## Assert
  
@@ -132,7 +132,7 @@ function GeolocationGridTest()
     check &= round(Int,minimum(geolocation.latitude)) == 38
     
     check &= round(Int,minimum(geolocation.height)) == 0
-    check &= round(Int,minimum(geolocation.elevationAngle)) == 37
+    check &= round(Int,minimum(geolocation.elevation_angle)) == 37
 
 
     if !check
@@ -149,23 +149,21 @@ end
 
 function BurstTest()
     #Action
-    metaDict = SARProcessing.getDictofXml(SENTINEL1_SLC_METADATA_TEST_FILE)
-    burstinfo = SARProcessing.BurstsInfo(metaDict);
+    metaDict = SARProcessing.read_xml_as_dict(SENTINEL1_SLC_METADATA_TEST_FILE)
+    bursts = SARProcessing.get_sentinel1_burst_information(metaDict);
 
     ## Assert
-    check = burstinfo.numberOfBurst == 9
-    check &= length(burstinfo.bursts) == 9
-    check &= isapprox(burstinfo.bursts[1].dopplerCentroid.dcT0,0.00534423320003329; atol = 0.000000001)
-    check &= isapprox(burstinfo.bursts[8].dopplerCentroid.dcT0,0.005342927742124565; atol = 0.000000001)
-    check &= length(burstinfo.bursts[1].azimuthFmRates.azimuthFmRatePolynomial) == 3
-    check &= burstinfo.bursts[5].dopplerCentroid.burstMidTime == Millisecond(12588)
-    check &= burstinfo.bursts[3].sensingTime == DateTime(2022,09,18,07,49,28,166)   
-    check &= isapprox(burstinfo.bursts[2].azimuthFmRates.azimuthFmRateT0 ,0.006018535512387027; atol = 0.000001) 
+    check = length(bursts) == 9
+    check &= isapprox(bursts[1].dopplerCentroid.dcT0,0.00534423320003329; atol = 0.000000001)
+    check &= isapprox(bursts[8].dopplerCentroid.dcT0,0.005342927742124565; atol = 0.000000001)
+    check &= length(bursts[1].azimuthFmRates.azimuthFmRatePolynomial) == 3
+    check &= bursts[3].sensingTime == DateTime(2022,09,18,07,49,28,166)   
+    check &= isapprox(bursts[2].azimuthFmRates.azimuthFmRateT0 ,0.006018535512387027; atol = 0.000001) 
 
     # add stuff later
 
     if !check
-        println("Error in Burst")
+        println("Error in Sentinel1BurstInformation")
     end
     return check
 end
