@@ -1,7 +1,3 @@
-module VisualiseSAR
-import SARProcessing
-using Statistics, Images
-
 
 """
 sar2grayimage(data::AbstractArray; p_quantile = 0.85)
@@ -12,13 +8,10 @@ The minimum `data` value is mapped to 0 and all values above the `p_quantile` is
 function sar2grayimage(data::AbstractArray{T}; p_quantile = 0.85) where T <: Real
     minvalue = minimum(reshape(data,:))
     factor = quantile(reshape(data,:),p_quantile) - minvalue
-    return Gray.( (data .- minvalue) ./ factor )
+    return Images.Gray.( (data .- minvalue) ./ factor )
 end
-
 
 
 function sar2grayimage(data::AbstractArray{T}; p_quantile = 0.85) where T <: Complex
     return sar2grayimage( abs2.(data), p_quantile = p_quantile)
 end
-
-end 

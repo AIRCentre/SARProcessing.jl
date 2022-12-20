@@ -1,12 +1,5 @@
 
 
-
-
-
-
-const slcSubsetWindow = [(9800,10400),(11000,12400)]
-const slcSubsetPath = "testData/s1a-iw3-slc-vv_subset_hight9800_10400_width11000_11000.tiff"
-
 ###### Function to create testdata
 
 ## createSLCsubset() is only included as a reference to show how the slc subset is made
@@ -17,7 +10,7 @@ function createSLCsubset()
         println("S1A_IW_SLC__1SDV_20220918T074920_20220918T074947_045056_056232_62D6.SAFE not found")
     end
 
-    swathSub = Sentinel1.readTiff(filePath, slcSubsetWindow, convertToDouble=false)
+    swathSub = SARProcessing.readTiff(filePath, slcSubsetWindow, convertToDouble=false)
     
     ArchGDAL.create(
         slcSubsetPath,
@@ -32,61 +25,14 @@ function createSLCsubset()
 
 end
 
-
-####### Helper function ##############
-createMetaData() = Sentinel1.MetaDataSLC("VV",1,Sentinel1.DateTime(2013,7,1,12,30,59),5405)
-
-function createSwathSLC() 
-    metaData = createMetaData() 
-    pixels = ones( Complex{Float64}, (2, 3)) .* (1.0+2.0im)
-    return Sentinel1.SwathSLC(metaData, (20,50),pixels)
-end
-
-
 ####### Test functions ##############
-function constructMetaDataTest() 
-    ## Arrange
-    
-    ## Act
-    testMeta = createMetaData()
-    
-    ## Assert
-    testOk = testMeta.polarisation == "VV" && testMeta.frequencyInMHz == 5405
-
-    return testOk
-end
-
-function constructSwathSLCTest() 
-    ## Arrange
-
-    ## Act
-    testSwath = createSwathSLC()
-
-    ## Assert
-    swathNumber = testSwath.metadata.swath
-    datasize = size(testSwath.pixels)
-    polarisation = testSwath.metadata.polarisation 
-
-    testOk = swathNumber == 1 && datasize == (2,3) && polarisation == "VV"
-    
-    ## Debug
-    if !testOk
-        println("Debug info: ", string(StackTraces.stacktrace()[1].func))
-        println("swathNumber: ", swathNumber)
-        println("datasize: ", datasize)
-        println("polarization: ", polarisation)
-    end
-
-    return testOk
-end
-
 
 function readTiffTest() 
     ## Arrange
     window = [(100,200),(200,550)]
 
     ## Act
-    swath = Sentinel1.readTiff(slcSubsetPath, window)
+    swath = SARProcessing.readTiff(slcSubsetPath, window)
 
     ## Assert
     checkType = typeof(swath)== Matrix{ComplexF64}
@@ -108,9 +54,7 @@ function readTiffTest()
 end
 
 
-@testset "Sentinel1.jl" begin
+@testset "Sentinel1ReadTiffTest.jl" begin
     ####### actual tests ###############
-    @test constructMetaDataTest() 
-    @test constructSwathSLCTest()
     @test readTiffTest()
 end

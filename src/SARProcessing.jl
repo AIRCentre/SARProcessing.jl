@@ -1,11 +1,13 @@
 module SARProcessing
-import Dates
 
-include("SARTypes.jl")
-include("geometryUtils.jl")
-include("OrbitState.jl")
+using Dates, Statistics
+import XMLDict, Images, ArchGDAL
 
-exampleFunction1() = true
+
+include("GeoCoding/GeoCoding.jl")
+include("VisualiseSAR/VisualiseSAR.jl")
+include("Sensors/Sensors.jl")
+
 
 end # module SARProcessing
 

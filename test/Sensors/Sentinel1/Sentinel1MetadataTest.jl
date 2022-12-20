@@ -14,7 +14,7 @@ unitests for the sentinel-1 metadata
 #############################################
 
 function MetaDataSentinel1Test()
-    slcMetadata = Sentinel1.MetaDataSentinel1(SENTINEL1_SLC_METADATA_TEST_FILE)
+    slcMetadata = SARProcessing.MetaDataSentinel1(SENTINEL1_SLC_METADATA_TEST_FILE)
     checkStructures = isdefined(slcMetadata, :header) && isdefined(slcMetadata, :product) && isdefined(slcMetadata, :image) && isdefined(slcMetadata, :swath) && isdefined(slcMetadata, :burstsInfo) && isdefined(slcMetadata, :geolocation)
     if !checkStructures
         println("Error in MetaDataSentinel1Test")
@@ -42,7 +42,7 @@ function readXmlTest()
     # can the file be read
     if isXML == true
         ## Act
-        metaDict = Sentinel1.getDictofXml(SENTINEL1_SLC_METADATA_TEST_FILE)
+        metaDict = SARProcessing.getDictofXml(SENTINEL1_SLC_METADATA_TEST_FILE)
         ## Assert
         readXMLcheck = metaDict != nothing
         ## Debug
@@ -68,8 +68,8 @@ end
 
 
 function HeaderTest()
-    metaDict = Sentinel1.getDictofXml(SENTINEL1_SLC_METADATA_TEST_FILE)
-    header = Sentinel1.Header(metaDict)
+    metaDict = SARProcessing.getDictofXml(SENTINEL1_SLC_METADATA_TEST_FILE)
+    header = SARProcessing.Header(metaDict)
     #testing if data exists in header
     checkTimes = header.startTime != nothing
     checkTypes = typeof(header.startTime) == DateTime && typeof(header.stopTime) == DateTime
@@ -85,8 +85,8 @@ end
 
 function productInformationTest()
 
-    metaDict = Sentinel1.getDictofXml(SENTINEL1_SLC_METADATA_TEST_FILE)
-    product = Sentinel1.ProductInformation(metaDict)
+    metaDict = SARProcessing.getDictofXml(SENTINEL1_SLC_METADATA_TEST_FILE)
+    product = SARProcessing.ProductInformation(metaDict)
     ## Assert
     checkTypes = typeof(product.rangeSamplingRate) == Float64
     checkrangeSamplingRate = product.rangeSamplingRate > 0
@@ -104,8 +104,8 @@ end
 
 function ImageInformationTest()
 
-    metaDict = Sentinel1.getDictofXml(SENTINEL1_SLC_METADATA_TEST_FILE)
-    imageinfo = Sentinel1.ImageInformation(metaDict)
+    metaDict = SARProcessing.getDictofXml(SENTINEL1_SLC_METADATA_TEST_FILE)
+    imageinfo = SARProcessing.ImageInformation(metaDict)
     ## Assert
     check = round(Int,imageinfo.azimuthFrequency) == 486 #frequency should be around 486.4 Hz for the Sentinel-1 
     check &= imageinfo.numberOfSamples == 24203 
@@ -121,8 +121,8 @@ end
 
 function GeolocationGridTest()
 
-    metaDict = Sentinel1.getDictofXml(SENTINEL1_SLC_METADATA_TEST_FILE)
-    geolocation = Sentinel1.GeolocationGrid(metaDict);
+    metaDict = SARProcessing.getDictofXml(SENTINEL1_SLC_METADATA_TEST_FILE)
+    geolocation = SARProcessing.GeolocationGrid(metaDict);
     ## Assert
  
     check = length(geolocation.lines)==210
@@ -149,8 +149,8 @@ end
 
 function BurstTest()
     #Action
-    metaDict = Sentinel1.getDictofXml(SENTINEL1_SLC_METADATA_TEST_FILE)
-    burstinfo = Sentinel1.BurstsInfo(metaDict);
+    metaDict = SARProcessing.getDictofXml(SENTINEL1_SLC_METADATA_TEST_FILE)
+    burstinfo = SARProcessing.BurstsInfo(metaDict);
 
     ## Assert
     check = burstinfo.numberOfBurst == 9
