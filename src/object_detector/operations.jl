@@ -1,7 +1,3 @@
-module operations
-
-
-
 import Statistics
 import Images
 
@@ -22,12 +18,133 @@ nanstd(x) = Statistics.std(filter(!isnan,x))
 nanstd(x,y) = mapslices(nanstd,x,dims=y)
 
 
+@doc raw"""
+Add padding to array
+
+# Examples:
+some
+"""
+function add_padding(array::Matrix{T} where T<: Real, padding_width::Integer=7, pad_value::Real=P where P<: isnan(P) )
+    input_rows, input_columns = size(array);
+    padded_image = ones(input_rows+padding_width*2,input_columns+padding_width*2);
+    replace!(padded_image, 1=>NaN);
+    padded_image[padding_width+1:input_rows+padding_width,padding_width+1:input_columns+padding_width] = array;
+    return padded_image
+
+end
+
+#@doc raw"""
+#Add padding to array
+#"""
+#function add_padding(array::Matrix{T} where T<: Real, padding_width::Integer=7, pad_value::Real=P where P<: !isnan(P) )
+#    input_rows, input_columns = size(array);
+#    padded_image = ones(input_rows+padding_width*2,input_columns+padding_width*2)*pad_value;
+#    padded_image[padding_width+1:input_rows+padding_width,padding_width+1:input_columns+padding_width] = array;
+#    return padded_image
+#end
 
 
+
+
+
+
+
+
+
+
+@doc raw"""
+    
+    binarize_array(image::Matrix{T}, threshold::Real= 0.0001) where T<:Real
+    Making a mask with boolean values of image
+
+
+# Examples:
+        bool_array = binarize_array(rand(10,10), threshold= 0.0001)
+"""
+function binarize_array(image::Matrix{T}, threshold::Real= 0.0001) where T<:Real
+    binary_image = similar(image,T)
+    binary_image[image .> threshold].=1;
+    binary_image[image .< threshold].=0;
+    return convert.(Bool,binary_image)
+end
+
+
+
+@doc raw"""
+    
+    Making a mask with 1/NaN values of image
+
+
+# Examples:
+        array_with_nan = mask_array_nan(rand(10,10), 0.5)
+"""
+function mask_array_nan(image::Matrix{T}, threshold::Real = 0.5) where T<:Real
+    mask_image = similar(image,T)
+    mask_image[image .> threshold].=1;
+    mask_image[image .< threshold].=NaN;
+    return mask_image
+end
+
+
+
+
+
+@doc raw""""
+
+    Find center locations of objects in a binary image.
+
+    # Example:
+        object_centers = object_locations(binary_array)
+"""
+function object_locations(image::Matrix{T}) where T <: Real
+    #objects using using label components.
+    binary_array = copy(image)
+    if T!=Float64
+        binary_array = convert.(Float64,binary_array)
+    end
+    objects = Images.label_components(binary_array);
+    #finding the center x and y coordinate for each object. 
+    x_coordinate = [round(Int64,Statistics.mean(first.(Tuple.(findall(x->x==j, objects))))) for j in unique(objects)]
+    y_coordinate = [round(Int64,Statistics.mean(last.(Tuple.(findall(x->x==j, objects))))) for j in unique(objects)]
+    object_center = [[x_coordinate[i],y_coordinate[i]] for i in 1:1:length(y_coordinate)]
+    binary_array = nothing
+    return object_center
+end
+    
+
+
+
+
+@doc raw"""
+
+    Extracting a subset from an image. The subset will be extraxted from the image row/column defined by coordinate and size subset_size.
+
+    Input:
+        image: The image array
+        coordinate::Vector{Int64}. Center coordinate of subset, in image geometry.
+        subset_size::Vector{Int64}=[75,75]. Size of the subset. 
+
+    Output:
+        subset::Array{Float64, 3}. The three dimensional subset [rows,columns,dimensions.] with dimension=1 for an input 2D array.
 
 
 """
-function conv2d(input::Matrix{Float64}, filter::Matrix{Float64}, stride::Int64 = 1, padding::String = "valid")::Matrix{Float64}
+function get_subset(image::Matrix{T} where T<:Real, coordinate::Vector{P}, subset_size::Vector{P} = [75,75]) where P<:Integer
+    half_window_row = round(Int64,(subset_size[1]-1)/2);
+    half_window_column = round(Int64,(subset_size[2]-1)/2);
+    subset = image[coordinate[1]-half_window_row:coordinate[1]+half_window_row,coordinate[2]-half_window_column:coordinate[2]+half_window_column,:];
+    if size(subset)[3]==1
+        subset = dropdims(subset;dims=3)
+    end
+    return subset
+end
+
+
+
+
+
+
+@doc raw"""
 
     Convolution function copied from Yosi Pramajaya. Credits goes to him. In his blogpost, he showed this implementation was faster than many others..
     See https://towardsdatascience.com/understanding-convolution-by-implementing-in-julia-3ed744e2e933
@@ -43,14 +160,14 @@ function conv2d(input::Matrix{Float64}, filter::Matrix{Float64}, stride::Int64 =
     Output:
         result::Matrix{Float64}. convolved image.
 
-    Example:
+    # Example:
         #define a filter.
         average_pool_filter = filters.meanFilter([2,2])
         #perform convolution.
         image = operations.conv2d(image, average_pool_filter,2, "same")
 
 """
-function conv2d(input::Matrix{Float64}, filter::Matrix{Float64}, stride::Int64 = 1, padding::String = "valid")::Matrix{Float64}
+function conv2d(input::Matrix{T} where T<:Real, filter::Matrix{P} where P<: Real, stride::Integer = 1, padding::String = "valid") 
     input_r, input_c = size(input)
     filter_r, filter_c = size(filter)
 
@@ -94,126 +211,32 @@ end
 
 
 
-""""
-function binarize_array(image::Matrix{Float64}, threshold::Float64 = 0.0001)::Matrix{Int64}
-    Binarizing all pixels in an array. Values < Threshold => 0. Values > Threshold => 1
+# credit https://github.com/aamini/FastConv.jl
+# direct version (do not check if threshold is satisfied)
+@generated function fastconv(E::Array{T,N}, k::Array{T,N}) where {T,N}
+    quote
 
-    input:
-        image::Matrix{Float64}
-        threshold::Float64 =  0.0001
+        retsize = [size(E)...] + [size(k)...] .- 1
+        retsize = tuple(retsize...)
+        ret = zeros(T, retsize)
 
-    output:
-        image::Matrix{Int64}: Image with ones and zeros.
-"""
-function binarize_array(image::Matrix{Float64}, threshold::Float64 = 0.0001)::Matrix{Int64}
-    image[image .> threshold].=1;
-    image[image .< threshold].=0;
-    return round.(Int64,image)
+        convn!(ret,E,k)
+        return ret
+
+    end
 end
 
-""""
-function binarize_array(image::Matrix{Int64}, threshold::Float64 = 0.0001)::Matrix{Int64}
-    Binarizing all pixels in an array. Values < Threshold => 0. Values > Threshold => 1
-
-    input:
-        image::Matrix{Float64}
-        threshold::Float64 =  0.0001
-
-    output:
-        image::Matrix{Int64}: Image with ones and zeros.
-"""
-function binarize_array(image::Matrix{Int64}, threshold::Float64 = 0.0001)::Matrix{Int64}
-    return image
+# credit https://github.com/aamini/FastConv.jl
+# in place helper operation to speedup memory allocations
+@generated function convn!(out::Array{T}, E::Array{T,N}, k::Array{T,N}) where {T,N}
+    quote
+        @inbounds begin
+            @nloops $N x E begin
+                @nloops $N i k begin
+                    (@nref $N out d->(x_d + i_d - 1)) += (@nref $N E x) * (@nref $N k i)
+                end
+            end
+        end
+        return out
+    end
 end
-
-""""
-mask_array!(image::Matrix{Float64}, threshold::Float64 = 0.5)::Matrix{Float64}
-    Masking all pixels in an array. Values < Threshold => Nan. Values > Threshold => 1
-
-    input:
-        image::Matrix{Int64}: Binary image with 0 and 1. Can be made, e.g., from the operations.binarize_array() function
-        threshold::Float64 = 0.5: When the value is [0,1], 0s are turned to NaNs. 
-
-    output:
-        image::Matrix{Float64}: Image with NaNs.
-"""
-function mask_array!(image::Matrix{Float64}, threshold::Float64 = 0.5)::Matrix{Float64}
-    image[image .> threshold].=1;
-    image[image .< threshold].=NaN;
-    return image
-end
-
-
-""""
-mask_array!(image::Matrix{Int64}, threshold::Float64 = 0.5)::Matrix{Float64}
-    Masking all pixels in an array. Values < Threshold => Nan. Values > Threshold => 1
-
-    input:
-        image::Matrix{Int64}: Binary image with 0 and 1. Can be made, e.g., from the operations.binarize_array() function
-        threshold::Float64 = 0.5: When the value is [0,1], 0s are turned to NaNs. 
-
-    output:
-        image::Matrix{Float64}: Image with NaNs.
-"""
-function mask_array!(image::Matrix{Int64}, threshold::Float64 = 0.5)::Matrix{Float64}
-    image = convert.(Float32, image)
-    image[image .> threshold].=1;
-    image[image .< threshold].=NaN;
-    return image
-end
-
-
-
-
-""""
-object_locations(binary_array::Matrix{Int64})::Vector{Vector{Int64}}
-
-    Find center locations of objects in a binary image.
-
-    Input:
-        binary_array::Matrix{Int64}
-
-    Output:
-        object_center::Vector{Vector{Int64}}. Vector of Vector{row,column} locations of each object.
-
-    Example:
-        object_centers = object_locations(binary_array)
-"""
-function object_locations(binary_array::Matrix{Int64})::Vector{Vector{Int64}}
-    #objects using using label components.
-    objects = Images.label_components(binary_array);
-    #finding the center x and y coordinate for each object. 
-    x_coordinate = [round(Int64,Statistics.mean(first.(Tuple.(findall(x->x==j, objects))))) for j in unique(objects)]
-    y_coordinate = [round(Int64,Statistics.mean(last.(Tuple.(findall(x->x==j, objects))))) for j in unique(objects)]
-    object_center = [[x_coordinate[i],y_coordinate[i]] for i in 1:1:length(y_coordinate)]
-    return object_center
-end
-    
-
-
-
-
-"""
-function get_subset(image,coordinate::Vector{Int64}, subset_size::Vector{Int64}=[75,75])::Array{Float64, 3}
-    Extracting a subset from an image. The subset will be extraxted from the image row/column defined by coordinate and size subset_size.
-
-    Input:
-        image: The image array
-        coordinate::Vector{Int64}. Center coordinate of subset, in image geometry.
-        subset_size::Vector{Int64}=[75,75]. Size of the subset. 
-
-    Output:
-        subset::Array{Float64, 3}. The three dimensional subset [rows,columns,dimensions.] with dimension=1 for an input 2D array.
-
-
-"""
-function get_subset(image,coordinate::Vector{Int64}, subset_size::Vector{Int64}=[75,75])::Array{Float64, 3}
-    half_window_row = round(Int64,(subset_size[1]-1)/2);
-    half_window_column = round(Int64,(subset_size[2]-1)/2);
-    subset = image[coordinate[1]-half_window_row:coordinate[1]+half_window_row,coordinate[2]-half_window_column:coordinate[2]+half_window_column,:];
-    return subset
-end
-
-
-end
-

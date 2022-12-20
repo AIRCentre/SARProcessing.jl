@@ -1,6 +1,6 @@
-module filters
-include("operations.jl")
-using .operations
+
+EDGE_HORIZONTAL = [1 2 1;0 0 0;-1 -2 -1]
+EDGE_VERTICAL = [1 2 1;0 0 0;-1 -2 -1]
 
 
 """"
@@ -20,27 +20,9 @@ function meanFilter(size::Vector{Int64}=[3,3])::Matrix{Float64}
     return ones(size[1],size[2])./(size[1]*size[2])
 end
 
-""""
-edgeHorizontal
-    Creates a edgeHorizontal for a iamge
 
-examples:
-        filter = edgeHorizontal()
-"""
-function edgeHorizontal()::Matrix{Float64}
-    return [1 2 1;0 0 0;-1 -2 -1]
-end
 
-""""
-edgeVertical
-    Creates a edgeVertical for a iamge
 
-examples:
-        filter = edgeVertical()
-"""
-function edgeVertical()::Matrix{Float64}
-    return [1 0 1;2 0 -1;1 0 -1]
-end
 
 
 
@@ -51,19 +33,12 @@ sobelFilter(input::Matrix{Float64},stride::Int64 = 1,padding::String="same")::Ma
 examples:
         sobel_image = filters.sobelFilter(image)
 """
-function sobelFilter(input::Matrix{Float64},
-                    stride::Int64 = 1,
-                    padding::String="same")::Matrix{Float64}
-    
-    horizontal = edgeHorizontal()
-    vetical = edgeVertical()
+function sobelFilter(input::Matrix{T} where T <: Real,
+                    stride::Integer = 1,
+                    padding::String="same")
     #sobel
-    horizontal_edges = operations.conv2d(input, horizontal, stride, padding)
-    vertical_edges = operations.conv2d(input, vetical, stride, padding)
+    horizontal_edges = conv2d(input, EDGE_HORIZONTAL, stride, padding)
+    vertical_edges = conv2d(input, EDGE_VERTICAL, stride, padding)
     image = sqrt.(horizontal_edges.^2+ vertical_edges.^2)
     return image
-end
-
-
-
 end
