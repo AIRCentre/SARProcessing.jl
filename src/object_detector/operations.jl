@@ -18,30 +18,16 @@ nanstd(x) = Statistics.std(filter(!isnan,x))
 nanstd(x,y) = mapslices(nanstd,x,dims=y)
 
 
+
 @doc raw"""
 Add padding to array
-
-# Examples:
-some
 """
-function add_padding(array::Matrix{T} where T<: Real, padding_width::Integer=7, pad_value::Real=P where P<: isnan(P) )
+function add_padding(array::Matrix{T} where T<: Real, padding_width::Integer=7, pad_value::Real=P where P<: !isnan(P) )
     input_rows, input_columns = size(array);
-    padded_image = ones(input_rows+padding_width*2,input_columns+padding_width*2);
-    replace!(padded_image, 1=>NaN);
+    padded_image = ones(input_rows+padding_width*2,input_columns+padding_width*2)*pad_value;
     padded_image[padding_width+1:input_rows+padding_width,padding_width+1:input_columns+padding_width] = array;
     return padded_image
-
 end
-
-#@doc raw"""
-#Add padding to array
-#"""
-#function add_padding(array::Matrix{T} where T<: Real, padding_width::Integer=7, pad_value::Real=P where P<: !isnan(P) )
-#    input_rows, input_columns = size(array);
-#    padded_image = ones(input_rows+padding_width*2,input_columns+padding_width*2)*pad_value;
-#    padded_image[padding_width+1:input_rows+padding_width,padding_width+1:input_columns+padding_width] = array;
-#    return padded_image
-#end
 
 
 
@@ -102,10 +88,11 @@ function object_locations(image::Matrix{T}) where T <: Real
     if T!=Float64
         binary_array = convert.(Float64,binary_array)
     end
-    objects = Images.label_components(binary_array);
+    objects = Images.label_components(binary_array,bkg = trues(5,5));
     #finding the center x and y coordinate for each object. 
-    x_coordinate = [round(Int64,Statistics.mean(first.(Tuple.(findall(x->x==j, objects))))) for j in unique(objects)]
-    y_coordinate = [round(Int64,Statistics.mean(last.(Tuple.(findall(x->x==j, objects))))) for j in unique(objects)]
+    unique_objects = unique(objects)[2:length(unique(objects))] #not counting background.
+    x_coordinate = [round(Int64,Statistics.mean(first.(Tuple.(findall(x->x==j, objects))))) for j in unique_objects]
+    y_coordinate = [round(Int64,Statistics.mean(last.(Tuple.(findall(x->x==j, objects))))) for j in unique_objects]
     object_center = [[x_coordinate[i],y_coordinate[i]] for i in 1:1:length(y_coordinate)]
     binary_array = nothing
     return object_center
