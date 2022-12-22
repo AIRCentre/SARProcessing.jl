@@ -13,8 +13,8 @@ A datatype for a Sentinel 1 Single Look Complex (SLC) swath subset.
 struct MetaDataSLC
     polarisation::String
     swath::Int
-    sensingTime::DateTime
-    frequencyInMHz::Float64
+    sensing_time::DateTime
+    frequency_MHz::Float64
 end
 
 
@@ -30,6 +30,6 @@ end
 """
 struct SwathSLC
     metadata::MetaDataSLC ## Sentinel 1 images has a metadata file for each swath
-    indexOffset::Tuple{Int,Int}
+    index_offset::Tuple{Int,Int}
     pixels::Array{Complex,2}
 end

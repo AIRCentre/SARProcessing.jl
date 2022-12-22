@@ -42,9 +42,9 @@ function readXmlTest()
     # can the file be read
     if isXML == true
         ## Act
-        metaDict = SARProcessing.read_xml_as_dict(SENTINEL1_SLC_METADATA_TEST_FILE)
+        meta_dict = SARProcessing.read_xml_as_dict(SENTINEL1_SLC_METADATA_TEST_FILE)
         ## Assert
-        readXMLcheck = !isnothing(metaDict )
+        readXMLcheck = !isnothing(meta_dict )
         ## Debug
         if !readXMLcheck
             println("Can't load XML file. Error in read_xml_as_dict() ")
@@ -68,8 +68,8 @@ end
 
 
 function HeaderTest()
-    metaDict = SARProcessing.read_xml_as_dict(SENTINEL1_SLC_METADATA_TEST_FILE)
-    header = SARProcessing.Sentinel1Header(metaDict)
+    meta_dict = SARProcessing.read_xml_as_dict(SENTINEL1_SLC_METADATA_TEST_FILE)
+    header = SARProcessing.Sentinel1Header(meta_dict)
     #testing if data exists in header
     checkTimes = !isnothing(header.start_time)
     checkTypes = typeof(header.start_time) == DateTime && typeof(header.stop_time) == DateTime
@@ -85,8 +85,8 @@ end
 
 function productInformationTest()
 
-    metaDict = SARProcessing.read_xml_as_dict(SENTINEL1_SLC_METADATA_TEST_FILE)
-    product = SARProcessing.Sentinel1ProductInformation(metaDict)
+    meta_dict = SARProcessing.read_xml_as_dict(SENTINEL1_SLC_METADATA_TEST_FILE)
+    product = SARProcessing.Sentinel1ProductInformation(meta_dict)
     ## Assert
     checkTypes = typeof(product.range_sampling_rate) == Float64
     checkrange_sampling_rate = product.range_sampling_rate > 0
@@ -104,12 +104,12 @@ end
 
 function ImageInformationTest()
 
-    metaDict = SARProcessing.read_xml_as_dict(SENTINEL1_SLC_METADATA_TEST_FILE)
-    imageinfo = SARProcessing.Sentinel1ImageInformation(metaDict)
+    meta_dict = SARProcessing.read_xml_as_dict(SENTINEL1_SLC_METADATA_TEST_FILE)
+    image_info = SARProcessing.Sentinel1ImageInformation(meta_dict)
     ## Assert
-    check = round(Int,imageinfo.azimuth_frequency) == 486 #frequency should be around 486.4 Hz for the Sentinel-1 
-    check &= imageinfo.number_of_samples == 24203 
-    check &= round(Int,imageinfo.azimuth_pixel_spacing) ==14 
+    check = round(Int,image_info.azimuth_frequency) == 486 #frequency should be around 486.4 Hz for the Sentinel-1 
+    check &= image_info.number_of_samples == 24203 
+    check &= round(Int,image_info.azimuth_pixel_spacing) ==14 
 
     if !check
         println("Error in Image data")
@@ -121,8 +121,8 @@ end
 
 function Sentinel1GeolocationGridTest()
 
-    metaDict = SARProcessing.read_xml_as_dict(SENTINEL1_SLC_METADATA_TEST_FILE)
-    geolocation = SARProcessing.Sentinel1GeolocationGrid(metaDict);
+    meta_dict = SARProcessing.read_xml_as_dict(SENTINEL1_SLC_METADATA_TEST_FILE)
+    geolocation = SARProcessing.Sentinel1GeolocationGrid(meta_dict);
     ## Assert
  
     check = length(geolocation.lines)==210
@@ -149,8 +149,8 @@ end
 
 function BurstTest()
     #Action
-    metaDict = SARProcessing.read_xml_as_dict(SENTINEL1_SLC_METADATA_TEST_FILE)
-    bursts = SARProcessing.get_sentinel1_burst_information(metaDict);
+    meta_dict = SARProcessing.read_xml_as_dict(SENTINEL1_SLC_METADATA_TEST_FILE)
+    bursts = SARProcessing.get_sentinel1_burst_information(meta_dict);
 
     ## Assert
     check = length(bursts) == 9
