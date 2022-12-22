@@ -5,4 +5,3 @@ struct OrbitState
     velocity::Array{Float64,1}
 end 
 
-#TODO add interpolation 

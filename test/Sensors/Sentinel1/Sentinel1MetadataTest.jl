@@ -1,5 +1,5 @@
 """
-unitests for the sentinel-1 metadata
+unit tests for the sentinel-1 metadata
 
     test
         1)MetaDataSentinel1
@@ -97,6 +97,7 @@ function productInformationTest()
     if !check 
         println("Error in Product data")
         println("Samplig rate", product.range_sampling_rate, "of type ", typeof(product.range_sampling_rate))
+
     end
     return check
 end
