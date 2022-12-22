@@ -1,10 +1,12 @@
 module SARProcessing
-import ArchGDAL
-
-include("Utils/DEM.jl")
-include("SARTypes.jl")
+using Dates, Statistics
+import XMLDict, Images, ArchGDAL
 
 
-exampleFunction1() = true
+include("GeoCoding/GeoCoding.jl")
+include("VisualiseSAR/VisualiseSAR.jl")
+include("Sensors/Sensors.jl")
+
 
 end # module SARProcessing
+
