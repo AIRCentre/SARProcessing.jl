@@ -119,10 +119,10 @@ end
 
 
 
-function GeolocationGridTest()
+function Sentinel1GeolocationGridTest()
 
     metaDict = SARProcessing.read_xml_as_dict(SENTINEL1_SLC_METADATA_TEST_FILE)
-    geolocation = SARProcessing.GeolocationGrid(metaDict);
+    geolocation = SARProcessing.Sentinel1GeolocationGrid(metaDict);
     ## Assert
  
     check = length(geolocation.lines)==210
@@ -136,7 +136,7 @@ function GeolocationGridTest()
 
 
     if !check
-        println("Error in GeolocationGridTest")
+        println("Error in Sentinel1GeolocationGridTest")
         println(checkGeolocation1)
         println(checkGeolocation2)
         println(checkGeolocation3)
@@ -154,11 +154,11 @@ function BurstTest()
 
     ## Assert
     check = length(bursts) == 9
-    check &= isapprox(bursts[1].dopplerCentroid.dcT0,0.00534423320003329; atol = 0.000000001)
-    check &= isapprox(bursts[8].dopplerCentroid.dcT0,0.005342927742124565; atol = 0.000000001)
-    check &= length(bursts[1].azimuthFmRates.azimuthFmRatePolynomial) == 3
-    check &= bursts[3].sensingTime == DateTime(2022,09,18,07,49,28,166)   
-    check &= isapprox(bursts[2].azimuthFmRates.azimuthFmRateT0 ,0.006018535512387027; atol = 0.000001) 
+    check &= isapprox(bursts[1].doppler_centroid.t0,0.00534423320003329; atol = 0.000000001)
+    check &= isapprox(bursts[8].doppler_centroid.t0,0.005342927742124565; atol = 0.000000001)
+    check &= length(bursts[1].azimuth_fm_rate.polynomial) == 3
+    check &= bursts[3].sensing_time == DateTime(2022,09,18,07,49,28,166)   
+    check &= isapprox(bursts[2].azimuth_fm_rate.t0 ,0.006018535512387027; atol = 0.000001) 
 
     # add stuff later
 
@@ -173,7 +173,7 @@ end
     @test readXmlTest()
     @test MetaDataSentinel1Test()
     @test HeaderTest()
-    @test GeolocationGridTest()
+    @test Sentinel1GeolocationGridTest()
     @test ImageInformationTest()
     @test productInformationTest()
     @test BurstTest()
