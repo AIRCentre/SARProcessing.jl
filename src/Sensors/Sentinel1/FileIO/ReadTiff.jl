@@ -1,6 +1,4 @@
 
-import ArchGDAL
-
 
 """
 readMetaDataSLC(filepath::String)
@@ -12,7 +10,7 @@ end
 
 
 """
-    readTiff(filepath::String, window=nothing, convertToDouble = true)
+    readTiff(filepath::String, window=nothing; convertToDouble = true,flip = true)
 
     Read a Sentinel 1 tiff file.
     # Examples:
