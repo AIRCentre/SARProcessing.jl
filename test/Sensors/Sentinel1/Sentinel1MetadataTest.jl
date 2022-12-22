@@ -2,7 +2,7 @@
 unit tests for the sentinel-1 metadata
 
     test
-        1)MetaDataSentinel1
+        1)Sentinel1MetaData
         2)loading data 
         3)the different sub structures.
     
@@ -10,14 +10,14 @@ unit tests for the sentinel-1 metadata
 
 
 #############################################
-########### test for MetaDataSentinel1 ###########
+########### test for Sentinel1MetaData ###########
 #############################################
 
-function MetaDataSentinel1Test()
-    slcMetadata = SARProcessing.MetaDataSentinel1(SENTINEL1_SLC_METADATA_TEST_FILE)
+function Sentinel1MetaDataTest()
+    slcMetadata = SARProcessing.Sentinel1MetaData(SENTINEL1_SLC_METADATA_TEST_FILE)
     checkStructures = isdefined(slcMetadata, :header) && isdefined(slcMetadata, :product) && isdefined(slcMetadata, :image) && isdefined(slcMetadata, :swath) && isdefined(slcMetadata, :bursts) && isdefined(slcMetadata, :geolocation)
     if !checkStructures
-        println("Error in MetaDataSentinel1Test")
+        println("Error in Sentinel1MetaDataTest")
     end
     return checkStructures
 end
@@ -62,7 +62,7 @@ end
 
 #############################################
 ### test structures and constructurs #######
-### excluding the MetaDataSentinel1 struct #######
+### excluding the Sentinel1MetaData struct #######
 #############################################
 
 
@@ -172,7 +172,7 @@ end
 @testset "Sentinel1Metadata.jl" begin
     ####### actual tests ###############
     @test readXmlTest()
-    @test MetaDataSentinel1Test()
+    @test Sentinel1MetaDataTest()
     @test HeaderTest()
     @test Sentinel1GeolocationGridTest()
     @test ImageInformationTest()
