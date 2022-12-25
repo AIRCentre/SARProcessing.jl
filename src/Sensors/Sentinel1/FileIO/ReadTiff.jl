@@ -1,15 +1,6 @@
 
 
 """
-read_meta_data_slc(filepath::String)
-Returns: ::MetaDataSLC
-"""
-function read_meta_data_slc(filepath::String)
-    error("Not implemented")
-end
-
-
-"""
     load_tiff(filepath::String, window=nothing; convertToDouble = true,flip = true)
 
     Read a Sentinel 1 tiff file.
@@ -46,7 +37,7 @@ function load_tiff(filepath::String, window=nothing; convertToDouble = true,flip
 
     # Tiff file have flipped Width and hight compare to julia 2d Matrix
     if flip 
-        # Flip array dimentions so index 1 is approximately lattitude direction and index 2 longitude
+        # Flip array dimensions so index 1 is approximately latitude direction and index 2 longitude
         dataset = permutedims(dataset, (2, 1));
     end
 
@@ -65,16 +56,4 @@ end
 
 
 
-
-"""
-read_slc(folder::String, window)
-Returns: ::Array{SwathSLC,1}
-"""
-function read_slc(folder::String, window)
-    error("Not implemented")
-    ## use read_meta_data_slc(filepath::String) to read the MetaData
-    ## use readSwathSLC(filepath::String, window) to read the swath
-
-    ## create and return ::ComplexImage object
-end
 
