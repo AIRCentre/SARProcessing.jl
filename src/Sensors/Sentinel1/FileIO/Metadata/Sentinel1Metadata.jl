@@ -44,6 +44,7 @@ function Sentinel1Header(meta_dict)::Sentinel1Header
     image_number = meta_dict["product"]["adsHeader"]["imageNumber"]
 
 
+    polarisation = parse(Polarisation,polarisation)
     stop_time = DateTime(stop_time[1:23])
     mission_data_take_id = parse(Int, mission_data_take_id)
     swath = parse(Int, swath[end])

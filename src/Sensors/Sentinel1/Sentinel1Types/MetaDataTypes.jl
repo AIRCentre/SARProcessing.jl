@@ -24,7 +24,7 @@ returns structure of Sentinel1Header from metadata in .xml
 Base.@kwdef struct Sentinel1Header
     mission_id::String
     product_type::String
-    polarisation::String
+    polarisation::Polarisation
     mission_data_take_id::Int
     swath::Int
     mode::String
@@ -182,3 +182,6 @@ Base.@kwdef struct Sentinel1MetaData <: MetaData
     bursts::Vector{Sentinel1BurstInformation}
     geolocation::Sentinel1GeolocationGrid
 end
+
+
+get_polarisation(meta_data::Sentinel1MetaData) = meta_data.header.polarisation
