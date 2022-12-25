@@ -3,7 +3,7 @@ include("Metadata/Sentinel1Metadata.jl")
 include("PreciseOrbit.jl")
 
 
-function load_sentinel1slc(safe_path::AbstractString, polarisation::Polarisation, swath::Integer, window=nothing)
+function load_sentinel1_slc(safe_path::AbstractString, polarisation::Polarisation, swath::Integer, window=nothing)
     tiff_path = get_data_path_sentinel1(safe_path, polarisation, swath)
     metadata_path = get_annotation_path_sentinel1(safe_path, polarisation, swath)
     

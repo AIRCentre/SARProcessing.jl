@@ -49,11 +49,11 @@ function find_data_sentinel1_test()
 end
 
 
-function load_sentinel1slc_test()
+function load_sentinel1_slc_test()
     ## Arrange
     
     ## Act
-    image = SARProcessing.load_sentinel1slc(SLC_SAFE_PATH,SARProcessing.VH, 1,SLC_SUBSET_WINDOW) 
+    image = SARProcessing.load_sentinel1_slc(SLC_SAFE_PATH,SARProcessing.VH, 1,SLC_SUBSET_WINDOW) 
     
     ## Assert
     data = SARProcessing.get_data(image)
@@ -81,7 +81,7 @@ end
     @test find_annotation_sentinel1_test()
     @test find_data_sentinel1_test()
     if ispath(SLC_SAFE_PATH) 
-        @test load_sentinel1slc_test()
+        @test load_sentinel1_slc_test()
     end
 end
 
