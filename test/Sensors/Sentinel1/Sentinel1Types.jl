@@ -1,49 +1,49 @@
 
 ####### Helper function ##############
-createMetaData() = SARProcessing.MetaDataSLC("VV",1,SARProcessing.DateTime(2013,7,1,12,30,59),5405)
+create_meta_data() = SARProcessing.MetaDataSLC("VV",1,SARProcessing.DateTime(2013,7,1,12,30,59),5405)
 
-function createSwathSLC() 
-    metaData = createMetaData() 
+function create_swath_slc() 
+    meta_data = create_meta_data() 
     pixels = ones( Complex{Float64}, (2, 3)) .* (1.0+2.0im)
-    return SARProcessing.SwathSLC(metaData, (20,50),pixels)
+    return SARProcessing.SwathSLC(meta_data, (20,50),pixels)
 end
 
 
 ####### Test functions ##############
-function constructMetaDataTest() 
+function construct_meta_data_test() 
     ## Arrange
     
     ## Act
-    testMeta = createMetaData()
+    test_meta = create_meta_data()
     
     ## Assert
-    testOk = testMeta.polarisation == "VV" && testMeta.frequencyInMHz == 5405
+    test_ok = test_meta.polarisation == "VV" && test_meta.frequency_MHz == 5405
 
-    return testOk
+    return test_ok
 end
 
-function constructSwathSLCTest() 
+function construct_swath_slc_test() 
     ## Arrange
 
     ## Act
-    testSwath = createSwathSLC()
+    test_swath = create_swath_slc()
 
     ## Assert
-    swathNumber = testSwath.metadata.swath
-    datasize = size(testSwath.pixels)
-    polarisation = testSwath.metadata.polarisation 
+    swath_number = test_swath.metadata.swath
+    data_size = size(test_swath.pixels)
+    polarisation = test_swath.metadata.polarisation 
 
-    testOk = swathNumber == 1 && datasize == (2,3) && polarisation == "VV"
+    test_ok = swath_number == 1 && data_size == (2,3) && polarisation == "VV"
     
     ## Debug
-    if !testOk
+    if !test_ok
         println("Debug info: ", string(StackTraces.stacktrace()[1].func))
-        println("swathNumber: ", swathNumber)
-        println("datasize: ", datasize)
+        println("swath_number: ", swath_number)
+        println("data_size: ", data_size)
         println("polarization: ", polarisation)
     end
 
-    return testOk
+    return test_ok
 end
 
 
@@ -51,6 +51,6 @@ end
 
 @testset "Sentinel1Types.jl" begin
     ####### actual tests ###############
-    @test constructMetaDataTest() 
-    @test constructSwathSLCTest()
+    @test construct_meta_data_test() 
+    @test construct_swath_slc_test()
 end

@@ -1,16 +1,16 @@
 
 
 """
-readMetaDataSLC(filepath::String)
+read_meta_data_slc(filepath::String)
 Returns: ::MetaDataSLC
 """
-function readMetaDataSLC(filepath::String)
+function read_meta_data_slc(filepath::String)
     error("Not implemented")
 end
 
 
 """
-    readTiff(filepath::String, window=nothing; convertToDouble = true,flip = true)
+    load_tiff(filepath::String, window=nothing; convertToDouble = true,flip = true)
 
     Read a Sentinel 1 tiff file.
     # Examples:
@@ -23,7 +23,7 @@ end
     (100,150)
     ```
 """
-function readTiff(filepath::String, window=nothing; convertToDouble = true,flip = true)
+function load_tiff(filepath::String, window=nothing; convertToDouble = true,flip = true)
 
     dataset = ArchGDAL.readraster(filepath)
 
@@ -67,12 +67,12 @@ end
 
 
 """
-readSLC(folder::String, window)
+read_slc(folder::String, window)
 Returns: ::Array{SwathSLC,1}
 """
-function readSLC(folder::String, window)
+function read_slc(folder::String, window)
     error("Not implemented")
-    ## use readMetaDataSLC(filepath::String) to read the MetaData
+    ## use read_meta_data_slc(filepath::String) to read the MetaData
     ## use readSwathSLC(filepath::String, window) to read the swath
 
     ## create and return ::ComplexImage object
