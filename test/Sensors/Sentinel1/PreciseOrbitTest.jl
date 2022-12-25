@@ -4,7 +4,7 @@ function read_sentinel1_orbit_test()
     
 
     ## Act
-    orbit_states = SARProcessing.precise_orbit_sentinel1(PRECISE_ORBIT_TEST_FILE)
+    orbit_states = SARProcessing.load_precise_orbit_sentinel1(PRECISE_ORBIT_TEST_FILE)
 
     ## Assert
 

@@ -13,11 +13,11 @@ unit tests for the sentinel-1 metadata
 ########### test for Sentinel1MetaData ###########
 #############################################
 
-function Sentinel1MetaDataTest()
+function metadata_sentinel1_test()
     slcMetadata = SARProcessing.Sentinel1MetaData(SENTINEL1_SLC_METADATA_TEST_FILE)
     checkStructures = isdefined(slcMetadata, :header) && isdefined(slcMetadata, :product) && isdefined(slcMetadata, :image) && isdefined(slcMetadata, :swath) && isdefined(slcMetadata, :bursts) && isdefined(slcMetadata, :geolocation)
     if !checkStructures
-        println("Error in Sentinel1MetaDataTest")
+        println("Error in metadata_sentinel1_test")
     end
     return checkStructures
 end
@@ -29,7 +29,7 @@ end
 
 
 
-function readXmlTest()
+function read_xml_test()
     ## Assert
     isXML = endswith(SENTINEL1_SLC_METADATA_TEST_FILE, ".xml")
     ## Debug
@@ -67,7 +67,7 @@ end
 
 
 
-function HeaderTest()
+function header_test()
     meta_dict = SARProcessing.read_xml_as_dict(SENTINEL1_SLC_METADATA_TEST_FILE)
     header = SARProcessing.Sentinel1Header(meta_dict)
     #testing if data exists in header
@@ -103,7 +103,7 @@ function productInformationTest()
 end
 
 
-function ImageInformationTest()
+function sentinel1_image_information_test()
 
     meta_dict = SARProcessing.read_xml_as_dict(SENTINEL1_SLC_METADATA_TEST_FILE)
     image_info = SARProcessing.Sentinel1ImageInformation(meta_dict)
@@ -120,7 +120,7 @@ end
 
 
 
-function Sentinel1GeolocationGridTest()
+function sentinel1_geolocation_grid_test()
 
     meta_dict = SARProcessing.read_xml_as_dict(SENTINEL1_SLC_METADATA_TEST_FILE)
     geolocation = SARProcessing.Sentinel1GeolocationGrid(meta_dict);
@@ -137,7 +137,7 @@ function Sentinel1GeolocationGridTest()
 
 
     if !check
-        println("Error in Sentinel1GeolocationGridTest")
+        println("Error in sentinel1_geolocation_grid_test")
         println(checkGeolocation1)
         println(checkGeolocation2)
         println(checkGeolocation3)
@@ -148,7 +148,7 @@ function Sentinel1GeolocationGridTest()
 end
 
 
-function BurstTest()
+function sentinel1_burst_test()
     #Action
     meta_dict = SARProcessing.read_xml_as_dict(SENTINEL1_SLC_METADATA_TEST_FILE)
     bursts = SARProcessing.get_sentinel1_burst_information(meta_dict);
@@ -160,6 +160,7 @@ function BurstTest()
     check &= length(bursts[1].azimuth_fm_rate.polynomial) == 3
     check &= bursts[3].sensing_time == DateTime(2022,09,18,07,49,28,166)   
     check &= isapprox(bursts[2].azimuth_fm_rate.t0 ,0.006018535512387027; atol = 0.000001) 
+    check &= all([bursts[i].azimuth_time < bursts[i+1].azimuth_time for i in 1:length(bursts)-1])
 
     # add stuff later
 
@@ -171,11 +172,11 @@ end
 
 @testset "Sentinel1Metadata.jl" begin
     ####### actual tests ###############
-    @test readXmlTest()
-    @test Sentinel1MetaDataTest()
-    @test HeaderTest()
-    @test Sentinel1GeolocationGridTest()
-    @test ImageInformationTest()
+    @test read_xml_test()
+    @test metadata_sentinel1_test()
+    @test header_test()
+    @test sentinel1_geolocation_grid_test()
+    @test sentinel1_image_information_test()
     @test productInformationTest()
-    @test BurstTest()
+    @test sentinel1_burst_test()
 end

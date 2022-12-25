@@ -57,15 +57,3 @@ end
 
 
 
-"""
-read_slc(folder::String, window)
-Returns: ::Array{SwathSLC,1}
-"""
-function read_slc(folder::String, window)
-    error("Not implemented")
-    ## use read_metadata_slc(filepath::String) to read the MetaData
-    ## use readSwathSLC(filepath::String, window) to read the swath
-
-    ## create and return ::ComplexImage object
-end
-

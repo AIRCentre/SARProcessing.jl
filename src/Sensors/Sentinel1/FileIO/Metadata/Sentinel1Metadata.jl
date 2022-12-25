@@ -248,28 +248,6 @@ Sentinel1BurstInformation
     Constructors for the Sentinel1BurstInformation structure. 
 
     It takes a dictionary containing the full sentinel-1 swath metadata and extracts the Sentinel1BurstInformation specific data for a single burst as a structure. 
-    The Sentinel1BurstInformation structure returns the following:
-        burst_number::Int64
-        azimuth_time::DateTime : Zero Doppler azimuth time of the first line of this burst [UTC]. 
-        azimuth_time::DateTime : Sensing time of the first input line of this burst [UTC].
-        azimuth_anx_time::Float64 : Zero Doppler azimuth time of the first line of this burst relative to the Ascending Node Crossing (ANX) time. [milli sec].
-        byte_offset::Int64.:  Byte offset of this burst within the image MDS.
-        first_valid_sample::Vector{Int64}: An array of integers indicating the offset of the first valid image sample within each range line. This array contains count attribute integers, equal to the lines_per_burst field (i.e. one value per range line within the burst), separated by spaces. If a range line does not contain any valid image samples, the integer is set to -1.
-        last_valid_sample::Vector{Int64}: An array of integers indicating the offset of the last valid image sample within each range line. This array contains count attribute integers, equal to the lines_per_burst (i.e. one value per range line within the burst), separated by spaces. If a range line does not contain any valid image samples, the integer is set to -1.
-        burst_id::Int64
-        absolute_burst_id::Int64
-        fm_times_diff::Vector{Millisecond}
-        best_index::Int64
-        polynomial::Vector{Float64}
-        t0::Float64
-        numberOfDopplerCentroids::Int64
-        burstTime::Millisecond
-        burstMidTime::Millisecond
-        dc_time_differences::Vector{Millisecond}
-        best_index::Int64
-        polynomial::Vector{Float64}
-        t0::Float64
-        firstLineMosaic::Int64
     
     Input:
         meta_dict[dict]: a dictionary of the metadata.burst_number
@@ -332,20 +310,6 @@ Sentinel1DopplerCentroid
     Constructors for the Sentinel1DopplerCentroid structure. 
 
     It takes a dictionary containing the full sentinel-1 swath metadata and extracts the Sentinel1DopplerCentroid data for a single burst as a structure. 
-    The Sentinel1DopplerCentroid structure returns the following:
-        polynomial::Vector{Float64}
-        t0::Float64
-    
-    Input:
-        meta_dict[dict]: a dictionary of the metadata.
-        burst.azimuth_time
-        header.start_time
-        swath_timing.lines_per_burst
-        imageInformation.azimuth_frequency
-
-
-    output:
-        Sentinel1DopplerCentroid[structure of Sentinel1DopplerCentroid]
 
     Note:
         [ ] Perhaps change input vars from strutures to the specific values. -- Does the current implementaion use extra time?
@@ -375,23 +339,6 @@ Sentinel1AzimuthFmRate
     Constructors for the Sentinel1AzimuthFmRate structure. 
 
     It takes a dictionary containing the full sentinel-1 swath metadata and extracts the Sentinel1AzimuthFmRate data for a single burst as a structure. 
-    The Sentinel1AzimuthFmRate structure returns the following:
-            burst_number::Int64
-            fm_times_diff::Vector{Millisecond}
-            best_index::Int64
-            polynomial::Vector{Float64}
-            t0::Float64
-
-    The burst_number can be used as a key to other burst specific structures, e.g., the Sentinel1BurstInformation data.
-
-    
-    Input:
-        meta_dict[dict]: a dictionary of the metadata.
-        doppler_centroid[Sentinel1DopplerCentroid]: Sentinel1DopplerCentroid Structure
-
-
-    output:
-        azimuthFmRate[structure of Sentinel1AzimuthFmRate]
 
     Note:
         [ ] Perhaps change input vars from strutures to the specific values. -- Does the current implementaion use extra time?
