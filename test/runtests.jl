@@ -1,4 +1,4 @@
-using SARProcessing, Test, Dates, LinearAlgebra
+using SARProcessing, Test, Dates, LinearAlgebra, Statistics
 import ArchGDAL, Images
 
 
@@ -28,6 +28,8 @@ end
     include("Sensors/Sentinel1/Sentinel1MetadataTest.jl")
     include("Sensors/Sentinel1/FileIoTest.jl")
     include("Sensors/Sentinel1/PreciseOrbitTest.jl")
+
+    include("InSAR/InSARTest.jl")
 end
 
 

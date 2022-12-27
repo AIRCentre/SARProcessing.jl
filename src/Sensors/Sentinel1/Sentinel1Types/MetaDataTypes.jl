@@ -63,6 +63,7 @@ Base.@kwdef struct Sentinel1ImageInformation
     slant_range_time::Millisecond
     incidence_angle_mid_swath::Float64
     azimuth_pixel_spacing::Float64
+    azimuth_time_interval::Float64
     number_of_samples::Int
 end
 
@@ -126,6 +127,8 @@ Base.@kwdef struct Sentinel1BurstInformation
     absolute_burst_id::Int64
     azimuth_fm_rate::Sentinel1AzimuthFmRate
     doppler_centroid::Sentinel1DopplerCentroid
+    burst_mid_time::DateTime
+    lines_per_burst::Int64
 end
 
 
