@@ -141,6 +141,7 @@ function Sentinel1ImageInformation(meta_dict)::Sentinel1ImageInformation
     slant_range_time = Millisecond(round(Int,parse(Float64, image_informations["slantRangeTime"])*1000))
     incidence_angle_mid_swath = parse(Float64, image_informations["incidenceAngleMidSwath"])
     azimuth_pixel_spacing = parse(Float64, image_informations["azimuthPixelSpacing"])
+    azimuth_time_interval = parse(Float64, image_informations["azimuthTimeInterval"])
     number_of_samples = parse(Int, image_informations["numberOfSamples"])
 
     image_informations = Sentinel1ImageInformation(range_pixel_spacing,
@@ -148,6 +149,7 @@ function Sentinel1ImageInformation(meta_dict)::Sentinel1ImageInformation
         slant_range_time,
         incidence_angle_mid_swath,
         azimuth_pixel_spacing,
+        azimuth_time_interval,
         number_of_samples)
     return image_informations
 end
@@ -296,7 +298,9 @@ function Sentinel1BurstInformation(meta_dict,burst_number::Int=1)::Sentinel1Burs
                         burst_id,
                         absolute_burst_id,
                         azimuth_fm_rate,
-                        doppler_centroid
+                        doppler_centroid,
+                        burst_mid_time,
+                        lines_per_burst
                         )
     return burst
 end
