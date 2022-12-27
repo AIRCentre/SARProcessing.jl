@@ -6,7 +6,35 @@ struct OrbitState
 end 
 
 
-function orbit_state_interpolator(orbit_states::Vector{OrbitState}, time_range::Tuple{DateTime,DateTime}, 
+get_speed(state::OrbitState) = LinearAlgebra.norm(state.velocity)
+
+
+get_burst_mid_states(image::SingleLookComplex, interpolator) = [interpolator(t) 
+                                                            for t in get_burst_mid_times(image)]
+
+
+"""
+orbit_state_interpolator(orbit_states::Vector{OrbitState}, image::SARImage, 
+    polynomial_degree::Integer=4, margin::Integer = 3 )
+
+    Create a polynomial interpolation functions for orbit states valid in the time span
+    from image start time to image end time.
+
+    #Returns
+    Anonymous interpolation function. (Input: DateTime, Output: OrbitState)
+"""
+function orbit_state_interpolator(orbit_states::Vector{OrbitState}, image::SARImage, 
+    polynomial_degree::Integer=4, margin::Integer = 3 )
+    time_range = get_time_range(image)
+    
+    # check that the orbit states cover the image
+    @assert (orbit_states[1].time < time_range[1]) &&  (time_range[2] < orbit_states[end].time)
+    
+    orbit_state_interpolator(orbit_states, time_range; 
+    polynomial_degree=polynomial_degree, margin = margin )
+end
+
+function orbit_state_interpolator(orbit_states::Vector{OrbitState}, time_range::Tuple{DateTime,DateTime}; 
     polynomial_degree::Integer=4, margin::Integer = 3 )
 
 
@@ -29,7 +57,7 @@ function orbit_state_interpolator(orbit_states::Vector{OrbitState}, time_range::
     position_polynomial = [Polynomials.fit(seconds, normalised_position[i,:], polynomial_degree) for i =1:3]
     velocity_polynomial = [Polynomials.fit(seconds, normalised_velocity[i,:], polynomial_degree) for i =1:3]
 
-    # create interpolator
+    ## create interpolation function
     interpolator = t -> 
     begin
         @assert (time_range[1] < t) && (t < time_range[2])

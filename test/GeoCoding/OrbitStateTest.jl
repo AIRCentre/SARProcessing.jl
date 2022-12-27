@@ -98,9 +98,35 @@ function interpolation_multiple_test()
 end
 
 
+function interpolation_with_image_test()  
+    ## Arrange
+    orbit_states = SARProcessing.load_precise_orbit_sentinel1(PRECISE_ORBIT_TEST_FILE2)
+    image = load_test_slc_image()
+    
+    ## Act
+    interpolator = SARProcessing.orbit_state_interpolator(orbit_states,image)
+
+    ## Assert
+    mid_burst_state = SARProcessing.get_burst_mid_states(image,interpolator)
+    speed = SARProcessing.get_speed.(mid_burst_state)
+
+    testOk = length(speed) == 1  # test image subset only covers one swath
+    testOk &= isapprox(7500,speed[1],rtol = 0.1)  #satellite speed is around 7.5 km/s
+
+    ## Debug
+    if !testOk
+        println("Debug info: ", String(Symbol(interpolation_with_image_test)))
+        println("speed: ", speed)
+    end
+
+    return testOk
+end
+
+
 @testset "OrbitState.jl" begin
     ####### actual tests ###############
     @test construct_orbit_state_test() 
     @test interpolation_test()
     @test interpolation_multiple_test() 
+    @test interpolation_with_image_test()
 end

@@ -1,7 +1,7 @@
 module SARProcessing
 
 using Dates, Statistics
-import XMLDict, Images, ArchGDAL, Polynomials
+import XMLDict, Images, ArchGDAL, Polynomials, LinearAlgebra
 
 include("enums.jl")
 include("SARImageInterface.jl")
