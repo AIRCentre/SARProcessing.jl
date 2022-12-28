@@ -14,7 +14,11 @@ get_data(image::Sentinel1SLC) = image.data;
 is_deramped(image::Sentinel1SLC) = image.deramped;
 get_time_range(image::Sentinel1SLC) = (image.metadata.header.start_time, image.metadata.header.stop_time)
 
+"""
+get_window(image::Sentinel1SLC)
 
+    Returns the window of the complete Sentinel image covered the "image"
+"""
 function get_window(image::Sentinel1SLC)
     index_1_start = image.index_start[1]
     index_1_end = size(image.data)[1] + image.index_start[1] - 1
@@ -25,6 +29,11 @@ function get_window(image::Sentinel1SLC)
     return [[index_1_start, index_1_end],[index_2_start, index_2_end]]
 end
 
+"""
+get_burst_numbers(image::Sentinel1SLC)
+
+    Returns list of burst included in the image subset
+"""
 function get_burst_numbers(image::Sentinel1SLC)
     lines_per_burst = image.metadata.swath.lines_per_burst
     window = get_window(image)

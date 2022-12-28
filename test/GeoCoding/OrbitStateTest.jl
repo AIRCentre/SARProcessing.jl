@@ -69,7 +69,7 @@ function interpolation_multiple_test()
     orbit_states = SARProcessing.load_precise_orbit_sentinel1(PRECISE_ORBIT_TEST_FILE)
     
     ## Act
-    # create to interpolators at the same time
+    # create two interpolators at the same time
     interpolator1 = SARProcessing.orbit_state_interpolator(orbit_states,(orbit_states[30].time, orbit_states[40].time))
     interpolator2 = SARProcessing.orbit_state_interpolator(orbit_states,(orbit_states[100].time, orbit_states[110].time))
 

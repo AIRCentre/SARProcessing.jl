@@ -17,7 +17,7 @@ get_burst_mid_states(image::SingleLookComplex, interpolator) = [interpolator(t)
 orbit_state_interpolator(orbit_states::Vector{OrbitState}, image::SARImage, 
     polynomial_degree::Integer=4, margin::Integer = 3 )
 
-    Create a polynomial interpolation functions for orbit states valid in the time span
+    Create a polynomial interpolation function for orbit states valid in the time span
     from image start time to image end time.
 
     #Returns
@@ -40,7 +40,7 @@ function orbit_state_interpolator(orbit_states::Vector{OrbitState}, time_range::
 
     #select orbit states
     selected_orbit_states = _select_orbit_states(orbit_states, time_range, margin)
-    @assert length(selected_orbit_states) > polynomial_degree
+    @assert length(selected_orbit_states) > polynomial_degree "Expected polynomial degree to be smaller than length of selected orbit states"
 
     # Get times
     selected_times = [element.time for element in selected_orbit_states];
@@ -60,7 +60,7 @@ function orbit_state_interpolator(orbit_states::Vector{OrbitState}, time_range::
     ## create interpolation function
     interpolator = t -> 
     begin
-        @assert (time_range[1] < t) && (t < time_range[2])
+        @assert (time_range[1] < t) && (t < time_range[2])  "t is outside time_range"
         t_seconds = Dates.value(t-time_0)/1000
 
         interpolated_position= _interpolate_3d_vector(t_seconds, position_polynomial,
