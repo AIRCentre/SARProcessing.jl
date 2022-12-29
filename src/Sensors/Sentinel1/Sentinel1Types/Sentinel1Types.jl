@@ -12,7 +12,6 @@ end
 get_metadata(image::Sentinel1SLC) = image.metadata;
 get_data(image::Sentinel1SLC) = image.data;
 is_deramped(image::Sentinel1SLC) = image.deramped;
-get_time_range(image::Sentinel1SLC) = (image.metadata.header.start_time, image.metadata.header.stop_time)
 
 """
 get_window(image::Sentinel1SLC)
@@ -45,22 +44,11 @@ function get_burst_numbers(image::Sentinel1SLC)
     return burst_start:burst_end
 end
 
-function get_burst_start_times(image::Sentinel1SLC)
-
-    meta_data = image.metadata
-    burst_numbers = get_burst_numbers(image)
-    burst_info = meta_data.bursts[burst_numbers]
-
-    return [element.azimuth_time for element in burst_info]
-end
 
 function get_burst_mid_times(image::Sentinel1SLC)
-    lines_per_burst = image.metadata.swath.lines_per_burst
-    azimuth_frequency = image.metadata.image.azimuth_frequency
-    half_burst_period = Millisecond(round(Int,lines_per_burst / (2 * (azimuth_frequency*0.001) )))
-    return get_burst_start_times(image) .+ half_burst_period 
-end
+    mid_times = get_burst_start_times(image.metadata)
+    burst_numbers = get_burst_numbers(image)
 
-get_burst_mid_states(image::Sentinel1SLC, interpolator) = [interpolator(t) 
-                                                            for t in get_burst_mid_times(image)]
+    return mid_times[burst_numbers]
+end
 
