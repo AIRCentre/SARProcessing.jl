@@ -299,8 +299,7 @@ function Sentinel1BurstInformation(meta_dict,burst_number::Int=1)::Sentinel1Burs
                         absolute_burst_id,
                         azimuth_fm_rate,
                         doppler_centroid,
-                        burst_mid_time,
-                        lines_per_burst
+                        burst_mid_time
                         )
     return burst
 end

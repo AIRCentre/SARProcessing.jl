@@ -128,7 +128,6 @@ Base.@kwdef struct Sentinel1BurstInformation
     azimuth_fm_rate::Sentinel1AzimuthFmRate
     doppler_centroid::Sentinel1DopplerCentroid
     burst_mid_time::DateTime
-    lines_per_burst::Int64
 end
 
 

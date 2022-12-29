@@ -35,7 +35,7 @@ end
 
 function test_phase_ramp(lines, samples, burst_number, meta_data, orbit_states)
     # check if output is real
-    output = SARProcessing.get_phase_ramp(lines, samples, burst_number, meta_data, orbit_states);
+    output = SARProcessing.phase_ramp(lines, samples, burst_number, meta_data, orbit_states);
     output_type = eltype(output);
     check_real = output_type <: Real
 
@@ -69,17 +69,18 @@ end
         dc_meta = metadata.bursts[i].doppler_centroid;
         @test polynomial_test(SARProcessing._doppler_centroid_frequency, range_time, dc_meta.polynomial, dc_meta.t0)
 
+        # Create some matrices of row and colomn indeces
         burst_sample_start = findall(metadata.bursts[i].first_valid_sample .> 0)[1]
         burst_sample_end = findall(metadata.bursts[i].first_valid_sample .> 0)[end]
         samples = collect(burst_sample_start:burst_sample_end)
-        lines = collect(1:metadata.bursts[i].lines_per_burst)
-        # v = collect(1:1000);
+        lines = collect(1:metadata.swath.lines_per_burst)
+
         n_samples = length(samples)
         samples = repeat(samples', length(lines))
-        lines = transpose(repeat(lines', n_samples))
+        lines = Matrix(transpose(repeat(lines', n_samples)))
 
         @test test_phase_ramp(lines, samples, i, metadata, orbit_states)
-
+        #TODO: Add more phase ramp tests
     end
     
 
