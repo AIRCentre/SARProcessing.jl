@@ -54,6 +54,3 @@ function load_tiff(filepath::String, window=nothing; convertToDouble = true,flip
 end
 
 
-
-
-
