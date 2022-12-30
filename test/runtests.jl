@@ -20,7 +20,9 @@ end
 @testset "Test of repos" begin
     include("GeoCoding/CoordinateTransformationTest.jl")
     include("GeoCoding/OrbitStateTest.jl")
+
     include("GeoCoding/DEMTest.jl")
+    include("GeoCoding/coordinates2indexTest.jl")
     
     include("VisualiseSAR/VisualiseSARTest.jl")
 
