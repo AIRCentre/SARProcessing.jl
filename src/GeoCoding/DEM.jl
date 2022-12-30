@@ -48,7 +48,7 @@ const TANDEX_DEM_NO_DATA_VALUE = -32767.0
     Load a Tandem-X DEM tiff. The Tandem-X DEM's can be downloaded from https://download.geoservice.dlr.de/TDM90/.
     Note: Invalid values are replaced with missing 
 """
-function load_tandemx_dem(tiffPath::String)
+function load_tandemx_dem(tiffPath::String; missing_values::Real=NaN)
     dataset = ArchGDAL.readraster(tiffPath)
 
     transform = ArchGDAL.getgeotransform(dataset)
@@ -61,7 +61,7 @@ function load_tandemx_dem(tiffPath::String)
 
     # Remove values close to or below the no data value
     invalid = heights .< (TANDEX_DEM_NO_DATA_VALUE + 1000)
-    heights[invalid] .= NaN
+    heights[invalid] .= missing_values
 
     # check that all ridicules values are removed
     @assert !any(heights .< -1000) 

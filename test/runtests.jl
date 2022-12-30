@@ -17,6 +17,7 @@ const slcSubsetPath = "testData/s1a-iw3-slc-vv_subset_hight9800_10400_width11000
     include("Sensors/Sentinel1/Sentinel1Types.jl")
     include("Sensors/Sentinel1/Sentinel1ReadTiffTest.jl")
     include("Sensors/Sentinel1/Sentinel1MetadataTest.jl")
+    include("Sensors/Sentinel1/PreciseOrbitTest.jl")
 end
 
 

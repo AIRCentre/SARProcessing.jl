@@ -10,7 +10,7 @@ function createSLCsubset()
         println("S1A_IW_SLC__1SDV_20220918T074920_20220918T074947_045056_056232_62D6.SAFE not found")
     end
 
-    swathSub = SARProcessing.loadTiff(filePath, slcSubsetWindow, convertToDouble=false)
+    swathSub = SARProcessing.load_tiff(filePath, slcSubsetWindow, convertToDouble=false)
     
     ArchGDAL.create(
         slcSubsetPath,
@@ -27,12 +27,12 @@ end
 
 ####### Test functions ##############
 
-function loadTiffTest() 
+function load_tiffTest() 
     ## Arrange
     window = [(100,200),(200,550)]
 
     ## Act
-    swath = SARProcessing.loadTiff(slcSubsetPath, window)
+    swath = SARProcessing.load_tiff(slcSubsetPath, window)
 
     ## Assert
     checkType = typeof(swath)== Matrix{ComplexF64}
@@ -56,5 +56,5 @@ end
 
 @testset "Sentinel1ReadTiffTest.jl" begin
     ####### actual tests ###############
-    @test loadTiffTest()
+    @test load_tiffTest()
 end
