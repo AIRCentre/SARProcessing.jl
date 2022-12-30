@@ -1,4 +1,10 @@
 
+function sar2gray(image::SARImage; p_quantile = 0.85)
+    data = get_data(image)
+    return sar2gray(data, p_quantile=p_quantile)
+end
+
+
 """
 sar2gray(data::AbstractArray; p_quantile = 0.85)
 
