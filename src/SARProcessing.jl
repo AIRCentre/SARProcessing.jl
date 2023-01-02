@@ -9,7 +9,7 @@ include("SARImageInterface.jl")
 include("GeoCoding/GeoCoding.jl")
 include("VisualiseSAR/VisualiseSAR.jl")
 include("Sensors/Sensors.jl")
-
+include("Speckle_filter/speckle_filters.jl")
 
 end # module SARProcessing
 
