@@ -18,7 +18,7 @@ function read_sentinel1_orbit_test()
     
     ## Debug
     if !testOk
-        println("Debug info: ", String(Symbol(constructOrbitState)))
+        println("Debug info: ", string(StackTraces.stacktrace()[1].func))
         println("length(orbit_states): ", length(orbit_states))
         println("orbit_states[1]: ", orbit_states[1])
         println("orbit_states[end]: ", orbit_states[end])

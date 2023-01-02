@@ -7,11 +7,12 @@ Convert geodetic-coordinates [latitude(radians),longitude(radians),height]
 to SAR_index (row_from_first_burst, image_column) 
 """
 function geodetic2SAR_index(geodetic_coordinate::Array{T,1}, interpolator, metadata::MetaData) where T <: Real
+    
     range_pixel_spacing = get_range_pixel_spacing(metadata)
     azimuth_frequency = get_azimuth_frequency(metadata)
     near_range = get_near_range(metadata)
     time_range = get_time_range(metadata)
-    
+
     return geodetic2SAR_index(
         geodetic_coordinate,
         interpolator,
@@ -70,8 +71,8 @@ function ecef2SAR_index(
     delta_time = find_zero_doppler_time(ecef_coordinate, time_range , interpolator)
     range = LinearAlgebra.norm(ecef_coordinate .- interpolator(delta_time).position)
 
-    row_from_first_burst    = 1 + (delta_time-time_range[1]) * azimuth_frequency
-    image_column = 1 + (range - near_range) / range_pixel_spacing
+    row_from_first_burst = azimuth_time2row(delta_time,azimuth_frequency,time_range[1])
+    image_column = range2column(range,range_pixel_spacing,near_range)
 
     return row_from_first_burst, image_column
 end
@@ -87,14 +88,15 @@ function find_zero_doppler_time(ecef_coordinate::Array{T,1}, time_range , interp
     search_interval_start = time_range[1]
     search_interval_end = time_range[2]
 
-    number_of_iterations = log2((search_interval_end-search_interval_start)/tolerance_in_seconds)
+    # The search interval is half every step 
+    number_of_steps = log2((search_interval_end-search_interval_start)/tolerance_in_seconds)
 
     is_in_image = _is_coordinate_in_time_range(ecef_coordinate, time_range , interpolator)
     @assert is_in_image "ecef_coordinate is not in image"
 
     local time_i::Float64
 
-    for _ = 1:number_of_iterations
+    for _ = 1:number_of_steps
         time_i = (search_interval_end + search_interval_start) / 2
 
         sin_squint_angle = _get_sin_squint_angle(ecef_coordinate, time_i , interpolator)

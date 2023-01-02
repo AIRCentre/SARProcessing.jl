@@ -14,7 +14,7 @@ function create_sentinel1SLC_test()
     
     ## Debug
     if !testOk
-        println("Debug info: ", String(Symbol(constructOrbitState)))
+        println("Debug info: ", string(StackTraces.stacktrace()[1].func))
         println("size(image.data): ", size(image.data))
         println("image.index_start:  ", image.index_start)
         println("image.meta_data.header.polarisation: ", image.metadata.header.polarisation)
@@ -43,7 +43,7 @@ function sar_image_interface_test()
     
     ## Debug
     if !testOk
-        println("Debug info: ", String(Symbol(constructOrbitState)))
+        println("Debug info: ", string(StackTraces.stacktrace()[1].func))
         println("size(data): ", size(data))
         println("meta.header.swath:  ", meta.header.swath)
         println("polarisation: ", polarisation)
