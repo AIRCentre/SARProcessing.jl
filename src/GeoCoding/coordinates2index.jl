@@ -12,7 +12,7 @@ function geodetic2SAR_index(geodetic_coordinate::Array{T,1}, interpolator, metad
     azimuth_frequency = get_azimuth_frequency(metadata)
     near_range = get_near_range(metadata)
     time_range = get_time_range(metadata)
-
+    
     return geodetic2SAR_index(
         geodetic_coordinate,
         interpolator,
@@ -88,7 +88,7 @@ function find_zero_doppler_time(ecef_coordinate::Array{T,1}, time_range , interp
     search_interval_start = time_range[1]
     search_interval_end = time_range[2]
 
-    # The search interval is half every step 
+    # The search interval is halved every step
     number_of_steps = log2((search_interval_end-search_interval_start)/tolerance_in_seconds)
 
     is_in_image = _is_coordinate_in_time_range(ecef_coordinate, time_range , interpolator)
