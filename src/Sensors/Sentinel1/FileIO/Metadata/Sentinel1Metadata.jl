@@ -1,6 +1,7 @@
 include("MetadataUtil.jl")
 
 
+
 ######################################################
 ##################### Constructors  ##################
 ######## Constructors for all the structures ########
@@ -130,7 +131,7 @@ Sentinel1ImageInformation
     It takes a dictionary containing the full sentinel-1 swath metadata and extracts the Sentinel1ImageInformation as a structure. Input in the Sentinel1ImageInformation file:
         range_pixel_spacing: Pixel spacing between range samples [m].
         azimuth_frequency: Azimuth line frequency of the output image [Hz]. This is the inverse of the azimuth_timeInterval.
-        slant_range_time_seconds: Two-way slant range time to first sample [sec].
+        slant_range_time_seconds: Two-way slant range time to first sample.
         incidence_angle_mid_swath: Incidence angle at mid swath [degrees].
         azimuth_pixel_spacing: Nominal pixel spacing between range lines [m].
         number_of_samples: Total number of samples in the output image (image width).
@@ -201,7 +202,7 @@ Sentinel1GeolocationGrid
         latitude: Geodetic latitude of grid point [degrees].
         longitude: Geodetic longitude of grid point [degrees].
         azimuth_time: Zero Doppler azimuth time to which grid point applies [UTC].
-        slant_range_time_seconds: Two-way slant range time to grid point [milli sec].
+        slant_range_time_seconds: Two-way slant range time to grid point.
         elevation_angle: Elevation angle to grid point [degrees].
         incidence_angle: Incidence angle to grid point [degrees].
         height: Height of the grid point above sea level [m].
