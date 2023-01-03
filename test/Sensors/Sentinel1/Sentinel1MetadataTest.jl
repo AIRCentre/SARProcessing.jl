@@ -69,10 +69,12 @@ end
 
 function header_test()
     meta_dict = SARProcessing.read_xml_as_dict(SENTINEL1_SLC_METADATA_TEST_FILE)
-    header = SARProcessing.Sentinel1Header(meta_dict)
+    reference_time = SARProcessing.get_reference_time(meta_dict)
+
+    header = SARProcessing.Sentinel1Header(meta_dict,reference_time)
     #testing if data exists in header
     checkTimes = !isnothing(header.start_time)
-    checkTypes = typeof(header.start_time) == DateTime && typeof(header.stop_time) == DateTime
+    checkTypes = typeof(header.start_time) == Float64 && typeof(header.stop_time) == Float64
     check = checkTimes && checkTypes
     if !check
         println("Error in Sentinel1Header")
@@ -123,7 +125,8 @@ end
 function sentinel1_geolocation_grid_test()
 
     meta_dict = SARProcessing.read_xml_as_dict(SENTINEL1_SLC_METADATA_TEST_FILE)
-    geolocation = SARProcessing.Sentinel1GeolocationGrid(meta_dict);
+    reference_time = SARProcessing.get_reference_time(meta_dict)
+    geolocation = SARProcessing.Sentinel1GeolocationGrid(meta_dict,reference_time);
     ## Assert
  
     check = length(geolocation.lines)==210
@@ -151,14 +154,16 @@ end
 function sentinel1_burst_test()
     #Action
     meta_dict = SARProcessing.read_xml_as_dict(SENTINEL1_SLC_METADATA_TEST_FILE)
-    bursts = SARProcessing.get_sentinel1_burst_information(meta_dict);
+    reference_time = SARProcessing.get_reference_time(meta_dict)
+    bursts = SARProcessing.get_sentinel1_burst_information(meta_dict,reference_time);
 
     ## Assert
     check = length(bursts) == 9
     check &= isapprox(bursts[1].doppler_centroid.t0,0.00534423320003329; atol = 0.000000001)
     check &= isapprox(bursts[8].doppler_centroid.t0,0.005342927742124565; atol = 0.000000001)
     check &= length(bursts[1].azimuth_fm_rate.polynomial) == 3
-    check &= bursts[3].sensing_time == DateTime(2022,09,18,07,49,28,166)   
+    sensing_time = reference_time + Millisecond(round(Int,bursts[3].sensing_time *1000))
+    check &= sensing_time == DateTime(2022,09,18,07,49,28,166)   
     check &= isapprox(bursts[2].azimuth_fm_rate.t0 ,0.006018535512387027; atol = 0.000001) 
     check &= all([bursts[i].azimuth_time < bursts[i+1].azimuth_time for i in 1:length(bursts)-1])
 
@@ -166,6 +171,9 @@ function sentinel1_burst_test()
 
     if !check
         println("Error in Sentinel1BurstInformation")
+        println("sensing_time: ", sensing_time)
+        println("bursts[3].sensing_time: ", bursts[3].sensing_time)
+        println("reference_time ", reference_time)
     end
     return check
 end
