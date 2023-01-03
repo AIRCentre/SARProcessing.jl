@@ -7,6 +7,7 @@ Convert geodetic-coordinates [latitude(radians),longitude(radians),height]
 to SAR_index (row_from_first_burst, image_column) 
 """
 function geodetic2SAR_index(geodetic_coordinate::Array{T,1}, interpolator, metadata::MetaData) where T <: Real
+    
     range_pixel_spacing = get_range_pixel_spacing(metadata)
     azimuth_frequency = get_azimuth_frequency(metadata)
     near_range = get_near_range(metadata)
@@ -70,8 +71,8 @@ function ecef2SAR_index(
     delta_time = find_zero_doppler_time(ecef_coordinate, time_range , interpolator)
     range = LinearAlgebra.norm(ecef_coordinate .- interpolator(delta_time).position)
 
-    row_from_first_burst    = 1 + (delta_time-time_range[1]) * azimuth_frequency
-    image_column = 1 + (range - near_range) / range_pixel_spacing
+    row_from_first_burst = azimuth_time2row(delta_time,azimuth_frequency,time_range[1])
+    image_column = range2column(range,range_pixel_spacing,near_range)
 
     return row_from_first_burst, image_column
 end

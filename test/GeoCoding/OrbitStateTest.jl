@@ -16,7 +16,7 @@ function construct_orbit_state_test()
     
     ## Debug
     if !testOk
-        println("Debug info: ", String(Symbol(construct_orbit_state_test)))
+        println("Debug info: ", string(StackTraces.stacktrace()[1].func))
         println("position_length_ok: ", position_length_ok)
         println("velocity_length_ok: ", velocity_length_ok)
     end
@@ -52,7 +52,7 @@ function interpolation_test()
 
     ## Debug
     if !testOk
-        println("Debug info: ", String(Symbol(interpolation_test)))
+        println("Debug info: ", string(StackTraces.stacktrace()[1].func))
         println("state_35_interpolated: ", state_35_interpolated)
         println("orbit_states[35]: ", orbit_states[35])
         println("position_next_interpolated: ", position_next_interpolated)
@@ -93,7 +93,7 @@ function interpolation_multiple_test()
 
     ## Debug
     if !testOk
-        println("Debug info: ", String(Symbol(interpolation_multiple_test)))
+        println("Debug info: ", string(StackTraces.stacktrace()[1].func))
         println("state_35_interpolated: ", state_35_interpolated)
         println("orbit_states[35]: ", orbit_states[35])
         println("state_105_interpolated: ", state_105_interpolated)
@@ -121,7 +121,7 @@ function interpolation_with_image_test()
 
     ## Debug
     if !testOk
-        println("Debug info: ", String(Symbol(interpolation_with_image_test)))
+        println("Debug info: ", string(StackTraces.stacktrace()[1].func))
         println("speed: ", speed)
     end
 

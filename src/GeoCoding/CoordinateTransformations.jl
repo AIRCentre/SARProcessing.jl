@@ -43,7 +43,7 @@ ecef2geodetic(ecef_coordinate::Array{Real,1};
 """
 function ecef2geodetic(ecef_coordinate::Array{T,1};
                         semi_major_axis::Real=WGS84_SEMI_MAJOR_AXIS,flattening::Real=WGS84_FLATTENING,
-                        tolerance_latitude::Real = 1.e-12, tolerance_height::Real = 1.e-5) where T <: Real
+                        tolerance_latitude::Real = 1.e-12, tolerance_height::Real = 1.e-5, max_iterations=1000) where T <: Real
     
     
     x = ecef_coordinate[1]
@@ -61,6 +61,8 @@ function ecef2geodetic(ecef_coordinate::Array{T,1};
     xy_squared_radius = sqrt(x^2+y^2)
     latitude = atan(z,xy_squared_radius./(1-e2))
     
+    iteration = 0
+
     while (delta_latitude>tolerance_latitude) | (delta_height>tolerance_height)
         latitude0   = latitude
         height0     = height
@@ -71,6 +73,11 @@ function ecef2geodetic(ecef_coordinate::Array{T,1};
         
         delta_latitude  = abs(latitude-latitude0)
         delta_height    = abs(height-height0)
+
+        iteration += 1
+        if iteration >max_iterations
+            throw(ErrorException("ecef2geodetic did not converge for  $ecef_coordinate"))
+        end
     end
 
     # Get longitude

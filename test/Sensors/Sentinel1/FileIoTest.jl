@@ -18,7 +18,7 @@ function find_annotation_sentinel1_test()
     
     ## Debug
     if !testOk
-        println("Debug info: ", String(Symbol(constructOrbitState)))
+        println("Debug info: ", string(StackTraces.stacktrace()[1].func))
         println("name: ", name)
     end
     return testOk
@@ -42,7 +42,7 @@ function find_data_sentinel1_test()
     
     ## Debug
     if !testOk
-        println("Debug info: ", String(Symbol(constructOrbitState)))
+        println("Debug info: ", string(StackTraces.stacktrace()[1].func))
         println("name: ", name)
     end
     return testOk
@@ -67,7 +67,7 @@ function load_sentinel1_slc_test()
     
     ## Debug
     if !test_ok
-        println("Debug info: ", String(Symbol(constructOrbitState)))
+        println("Debug info: ", string(StackTraces.stacktrace()[1].func))
         println("typeof(data): ", typeof(data))
         println("polarisation: ", polarisation)
         println("deramped: ", deramped)

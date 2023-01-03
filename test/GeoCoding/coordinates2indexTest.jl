@@ -26,7 +26,7 @@ function find_zero_doppler_time_test()
     
     ## Debug
     if !test_ok
-        println("Debug info: ", String(Symbol(find_zero_doppler_time_test)))
+        println("Debug info: ",string(StackTraces.stacktrace()[1].func))
         println("zero_doppler_time: ", zero_doppler_time)
     end
 
@@ -53,7 +53,7 @@ function ecef2SAR_index_test()
     
     ## Debug
     if !test_ok
-        println("Debug info: ", String(Symbol(find_zero_doppler_time_test)))
+        println("Debug info: ", string(StackTraces.stacktrace()[1].func))
         println("SAR_index: ", SAR_index)
         println("row_image: ", row_image)
     end
