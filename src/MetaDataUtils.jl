@@ -30,7 +30,7 @@ end
 
 
 """
-azimuth_time2row(azimuth_time::Real,metadata::MetaData)
+row2azimuth_time(row_from_first_burst::Real,metadata::MetaData)
 
     Returns the azimuth_time corresponding to a specific row (as counted from first burst ignoring burst overlap)
 

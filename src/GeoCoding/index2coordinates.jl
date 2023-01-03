@@ -8,9 +8,9 @@ sar_index2geodetic(row_from_first_burst,
 
     Convert SAR_index (row_from_first_burst, image_column) to geodetic coordinates [latitude(radians),longitude(radians),height] 
 """
-function sar_index2geodetic(row_from_first_burst,
-    image_column, 
-    height, 
+function sar_index2geodetic(row_from_first_burst::Real,
+    image_column::Real, 
+    height::Real, 
     interpolator,
     metadata::MetaData)
 
@@ -32,14 +32,14 @@ function sar_index2geodetic(row_from_first_burst,
 end
 
 
-function sar_index2geodetic(row_from_first_burst,
-     image_column, 
-     height, 
+function sar_index2geodetic(row_from_first_burst::Real,
+     image_column::Real, 
+     height::Real, 
      interpolator,
-     t_start,
-     incidence_angle_mid, 
-     range_pixel_spacing,
-     azimuth_frequency,
+     t_start::Real,
+     incidence_angle_mid::Real, 
+     range_pixel_spacing::Real,
+     azimuth_frequency::Real,
      near_range::Real)
 
     time = row2azimuth_time(row_from_first_burst,azimuth_frequency,t_start)
@@ -119,7 +119,7 @@ function solve_radar(range::Real,height::Real,point_guess::Vector{T},orbit_state
         end
 
         if iteration == MAX_ITER
-            println("Warning Covergens not reached")
+            println("Warning Convergence not reached")
             return nothing
         end
 

@@ -24,7 +24,8 @@ function approx_point_test()
     #Assert
     test_ok = isapprox(point_geodetic[1] * 180/pi, expected_point[1], atol=1.0)
     test_ok &= isapprox(point_geodetic[2] * 180/pi, expected_point[2], atol=1.0)
-    test_ok &= isapprox(point_geodetic[3], 0.0, atol=1.0)
+    # The approx_point returns a point on the reference ellipsoid so the height should be 0. 
+    test_ok &= isapprox(point_geodetic[3], 0.0, atol=1.0) 
 
     ## Debug
     if !test_ok
