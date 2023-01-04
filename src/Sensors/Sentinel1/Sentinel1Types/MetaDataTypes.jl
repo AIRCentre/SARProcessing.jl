@@ -192,6 +192,7 @@ get_azimuth_frequency(meta_data::Sentinel1MetaData) = meta_data.image.azimuth_fr
 get_slant_range_time_seconds(meta_data::Sentinel1MetaData) = meta_data.image.slant_range_time_seconds
 get_time_range(meta_data::Sentinel1MetaData) = (meta_data.header.start_time, meta_data.header.stop_time)
 get_reference_time(meta_data::Sentinel1MetaData) = meta_data.reference_time
+get_incidence_angle_mid_degrees(meta_data::Sentinel1MetaData)= meta_data.image.incidence_angle_mid_swath
 
 function get_burst_start_times(meta_data::Sentinel1MetaData)
     return [element.azimuth_time for element in meta_data.bursts]

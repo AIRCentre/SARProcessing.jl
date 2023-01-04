@@ -1,4 +1,5 @@
-using SARProcessing, Test, Dates, LinearAlgebra, Statistics
+using SARProcessing, Test, Dates, LinearAlgebra
+using Statistics
 import ArchGDAL, Images
 
 
@@ -20,8 +21,9 @@ end
 @testset "Test of repos" begin
     include("GeoCoding/CoordinateTransformationTest.jl")
     include("GeoCoding/OrbitStateTest.jl")
-    include("GeoCoding/coordinates2indexTest.jl")
     include("GeoCoding/DEMTest.jl")
+    include("GeoCoding/coordinates2indexTest.jl")
+    include("GeoCoding/SarIndex2CoordinatesTest.jl")
     
     include("VisualiseSAR/VisualiseSARTest.jl")
 
@@ -32,6 +34,10 @@ end
     include("Sensors/Sentinel1/PreciseOrbitTest.jl")
 
     include("InSAR/InSARTest.jl")
+    include("object_detector/object_detector_cfar_test.jl")
+    include("object_detector/object_detector_filter_test.jl")
+    include("object_detector/object_detector_operations_test.jl")
+
 end
 
 
