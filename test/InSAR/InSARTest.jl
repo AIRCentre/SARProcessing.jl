@@ -43,7 +43,7 @@ function _doppler_fm_rate_test()
     fm_meta = metadata.bursts[burst_number].azimuth_fm_rate;
 
     # Test
-    polynomial_test(SARProcessing._doppler_fm_rate, range_time, fm_meta.polynomial, fm_meta.t0)
+    return polynomial_test(SARProcessing._doppler_fm_rate, range_time, fm_meta.polynomial, fm_meta.t0)
 end
 
 function _doppler_centroid_frequency_test()
@@ -58,7 +58,7 @@ function _doppler_centroid_frequency_test()
     dc_meta = metadata.bursts[burst_number].doppler_centroid;
 
     # Test
-    polynomial_test(SARProcessing._doppler_centroid_frequency, range_time, dc_meta.polynomial, dc_meta.t0)
+    return polynomial_test(SARProcessing._doppler_centroid_frequency, range_time, dc_meta.polynomial, dc_meta.t0)
 end
 
 function phase_ramp_test()
@@ -91,9 +91,6 @@ function phase_ramp_test()
 
     # check that the ramp is not all zeros
     check_non_zero = sum(ramp .!= 0) != 0;
-
-    # check that length of each element is 1 for reramp * deramp
-    check_ramp_cancellation_length = all(length.(exp.(-ramp .* im) .* exp.(ramp .* im)) .== 1)
 
     test_ok = all([check_real, check_non_zero, check_ramp_cancellation_length])
     return test_ok
