@@ -71,10 +71,6 @@ function get_slant_range_time_seconds(meta_data::T) where T <: MetaData
     throw(ErrorException("get_slant_range_time_seconds(meta_data::T)must be implemented for all MetaData types. Type: $T"))
 end
 
-function get_slant_range_time_seconds(meta_data::T) where T <: MetaData
-    throw(ErrorException("get_slant_range_time_seconds(meta_data::T)must be implemented for all MetaData types. Type: $T"))
-end
-
 function get_time_range(meta_data::T) where T <: MetaData
     throw(ErrorException("get_time_range(image::T) must be implemented for all MetaData types. Type: $T"))
 end
@@ -83,17 +79,12 @@ function get_reference_time(meta_data::T) where T <: MetaData
     throw(ErrorException("get_reference_time(image::T) must be implemented for all MetaData types. Type: $T"))
 end
 
-# Simple functions
 
-get_range_pixel_spacing(meta_data::MetaData, c = LIGHT_SPEED) = c / ( 2.0*  get_range_sampling_rate(meta_data))
-
-get_near_range(meta_data::MetaData, c = LIGHT_SPEED) = c *  get_slant_range_time_seconds(meta_data)/ 2.0
-
-
-
-function get_image_duration_seconds(meta_data::MetaData)::Float64
-    time_range = get_time_range(meta_data)
-    return time_range[2]- time_range[1]
+function get_incidence_angle_mid_degrees(meta_data::T) where T <: MetaData
+    throw(ErrorException("get_reference_time(image::T) must be implemented for all MetaData types. Type: $T"))
 end
+
+
+
 
 
