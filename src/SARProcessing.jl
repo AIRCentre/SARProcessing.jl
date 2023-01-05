@@ -14,8 +14,10 @@ include("MetaDataUtils.jl")
 include("GeoCoding/GeoCoding.jl")
 include("VisualiseSAR/VisualiseSAR.jl")
 include("Sensors/Sensors.jl")
+include("Speckle_filter/speckle_filters.jl")
 include("InSAR/InSAR.jl")
 include("Object_detector/object_detector.jl")
+
 
 end # module SARProcessing
 
