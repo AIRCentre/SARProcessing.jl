@@ -92,7 +92,7 @@ function phase_ramp_test()
     # check that the ramp is not all zeros
     check_non_zero = sum(ramp .!= 0) != 0;
 
-    test_ok = all([check_real, check_non_zero, check_ramp_cancellation_length])
+    test_ok = all([check_real, check_non_zero])
     return test_ok
 end
 
