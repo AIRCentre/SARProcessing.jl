@@ -33,6 +33,7 @@ end
     include("Sensors/Sentinel1/FileIoTest.jl")
     include("Sensors/Sentinel1/PreciseOrbitTest.jl")
 
+    include("InSAR/InSARTest.jl")
     include("object_detector/object_detector_cfar_test.jl")
     include("object_detector/object_detector_filter_test.jl")
     include("object_detector/object_detector_operations_test.jl")

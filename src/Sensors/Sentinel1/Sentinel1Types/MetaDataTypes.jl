@@ -63,6 +63,7 @@ Base.@kwdef struct Sentinel1ImageInformation
     slant_range_time_seconds::Float64  # are stored as float because of accuracy
     incidence_angle_mid_swath::Float64
     azimuth_pixel_spacing::Float64
+    azimuth_time_interval::Float64
     number_of_samples::Int
 end
 
