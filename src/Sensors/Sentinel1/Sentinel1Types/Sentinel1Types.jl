@@ -19,13 +19,13 @@ get_window(image::Sentinel1SLC)
     Returns the window of the complete Sentinel image covered the "image"
 """
 function get_window(image::Sentinel1SLC)
-    index_1_start = image.index_start[1]
-    index_1_end = size(image.data)[1] + image.index_start[1] - 1
+    rows_start = image.index_start[1]
+    rows_end = size(image.data)[1] + image.index_start[1] - 1
 
-    index_2_start = image.index_start[2]
-    index_2_end = size(image.data)[2] + image.index_start[2] - 1
+    columns_start = image.index_start[2]
+    columns_end = size(image.data)[2] + image.index_start[2] - 1
 
-    return [[index_1_start, index_1_end],[index_2_start, index_2_end]]
+    return [[rows_start, rows_end],[columns_start, columns_end]]
 end
 
 """

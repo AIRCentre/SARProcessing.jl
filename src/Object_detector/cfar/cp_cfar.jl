@@ -15,7 +15,7 @@ function constant_false_alarm_rate_with_convolution_and_pooling(image::Matrix{T}
     # average pooling
     average_pool_filter = mean_filter([2,2])
     image = conv2d(image, average_pool_filter,2, "same")
-    image = cell_averaging_constant_false_alarm_rate(image,background_size,guard_size,pfa)
+    image = two_parameter_constant_false_alarm_rate(image,background_size,guard_size,pfa)
     image = Images.ImageMorphology.dilate(image)
     image = Images.ImageMorphology.erode(image)
     #median filter
