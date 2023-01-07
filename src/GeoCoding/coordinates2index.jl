@@ -91,7 +91,7 @@ function find_zero_doppler_time(ecef_coordinate::Array{T,1}, time_range , interp
     # The search interval is halved every step
     number_of_steps = log2((search_interval_end-search_interval_start)/tolerance_in_seconds)
 
-    is_in_image = _is_coordinate_in_time_range(ecef_coordinate, time_range , interpolator)
+    is_in_image = is_coordinate_in_time_range(ecef_coordinate, time_range , interpolator)
     @assert is_in_image "ecef_coordinate is not in image"
 
     local time_i::Float64
@@ -122,7 +122,7 @@ function _get_sin_squint_angle(ecef_coordinate::Array{T,1}, t_0::Real, interpola
 end
 
 
-function _is_coordinate_in_time_range(ecef_coordinate::Array{T,1},time_range  , interpolator) where T <: Real
+function is_coordinate_in_time_range(ecef_coordinate::Array{T,1},time_range  , interpolator) where T <: Real
     sin_squint_angle_start = _get_sin_squint_angle(ecef_coordinate, time_range[1] , interpolator)
     sin_squint_angle_end = _get_sin_squint_angle(ecef_coordinate, time_range[2], interpolator)
     return (sin_squint_angle_start > 0) && (sin_squint_angle_end < 0)

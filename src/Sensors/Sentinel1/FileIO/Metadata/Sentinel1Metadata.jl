@@ -277,8 +277,13 @@ function Sentinel1BurstInformation(meta_dict,burst_number::Int, reference_time::
     byte_offset = parse.(Int,burst["byteOffset"])
     first_valid_sample = parse.(Int,split(burst["firstValidSample"][""]))
     last_valid_sample = parse.(Int,split(burst["lastValidSample"][""]))
-    burst_id = parse.(Int64,split(burst["burstId"][""]))[1]
-    absolute_burst_id = parse.(Int,split(burst["burstId"][:absolute]))[1]
+    burst_id = -1
+    absolute_burst_id = -1
+    
+    if haskey(burst, "burstId")
+        burst_id = parse.(Int64,split(burst["burstId"][""]))[1] 
+        absolute_burst_id = parse.(Int,split(burst["burstId"][:absolute]))[1]
+    end
 
     #Sentinel1DopplerCentroid  for burst 
     lines_per_burst  = Sentinel1SwathTiming(meta_dict).lines_per_burst

@@ -19,7 +19,7 @@ end
 """
 load_precise_orbit_sentinel1(path)
 
-Loads a Sentinel 1 orbit file
+Loads a Sentinel 1 orbit file. Files can be found at https://scihub.copernicus.eu/gnss/#/home
  
 # Returns
 - Vector{OrbitState}
