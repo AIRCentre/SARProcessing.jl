@@ -164,7 +164,7 @@ end
 plot_phase(exp.(-phase_ramp_b .* im)[:,1:4:end])
 # deramp image B
 
-imageB.data .= imageB.data .* exp.(phase_ramp_b .* im)
+imageB.data .= imageB.data .* exp.(-phase_ramp_b .* im)
 imageB.deramped = true
 
 
@@ -226,7 +226,7 @@ function plot_multiple_sar(rgb_data; p_quantile = 0.85)
 end
 
 
-resampled_data = reshape(resampled_data,size(imageA.data))
+resampled_data = reshape(resampled_data,size(imageA.data));
 
 plot_multiple_sar([resampled_data[:,1:4:end],imageA.data[:,1:4:end],imageA.data[:,1:4:end]])
 
@@ -242,7 +242,7 @@ phase_ramp_a = SARProcessing.phase_ramp(
     collect( windowA[2][1]:windowA[2][2]), 
 1, mid_burst_speed_a, metadataA)
 
-resampled_data .= resampled_data .* exp.(-phase_ramp_a .* im)
+resampled_data .= resampled_data .* exp.(phase_ramp_a .* im)
 
 ### create inferogram ?
 plot_phase((imageA.data .* conj.(resampled_data))[:,1:4:end])
