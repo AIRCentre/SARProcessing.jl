@@ -275,7 +275,7 @@ function Sentinel1BurstInformation(meta_dict,burst_number::Int, reference_time::
 
     azimuth_time = parse_delta_time(burst["azimuthTime"],reference_time)
     sensing_time = parse_delta_time(burst["sensingTime"],reference_time)
-    azimuth_anx_time = Millisecond(round(Int,parse(Float64, burst["azimuthAnxTime"])*1000))
+    azimuth_anx_time = parse(Float64, burst["azimuthAnxTime"])
     byte_offset = parse.(Int,burst["byteOffset"])
     first_valid_sample = parse.(Int,split(burst["firstValidSample"][""]))
     last_valid_sample = parse.(Int,split(burst["lastValidSample"][""]))

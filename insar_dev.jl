@@ -3,7 +3,6 @@ using SARProcessing, SciPy, Images, Statistics
 
 
 
-
 safefolderA = "test/testData/largeFiles/EO_workshop_full/S1A_IW_SLC__1SDV_20190622T015048_20190622T015115_027786_0322F1_7A8E.SAFE"
 orbit_file_a = "test/testData/largeFiles/EO_workshop_full/S1A_OPER_AUX_POEORB_OPOD_20210330T183728_V20190621T225942_20190623T005942.EOF"
 orbit_file_b = "test/testData/largeFiles/EO_workshop_full/S1B_OPER_AUX_POEORB_OPOD_20210330T202915_V20190627T225942_20190629T005942.EOF"
@@ -103,16 +102,6 @@ geo_points = [SARProcessing.sar_index2geodetic(rows[i], columns[j] ,sar_grid_hei
                 interpolator_a,
                 metadataA) for i=1:length(rows), j=1:length(columns) ]
 
-```
-struct GeocodeTable
-    rows::Vector
-    columns:: Vector
-    geodetic_point::Matrix
-end
-
-
-geocode_table = GeocodeTable(rows,columns,geo_points)
-```
 
 metadata_path = SARProcessing.get_annotation_path_sentinel1(safefolderB, polarisation, swath);
 
@@ -337,46 +326,8 @@ window = [[5,2000],[8400,20000]]
 
 
 
-metadata_path = SARProcessing.get_annotation_path_sentinel1(safefolderA, polarisation, swath);
-
-metadataA = SARProcessing.Sentinel1MetaData(metadata_path);
-
-argmin(metadataA.geolocation.latitude)
-metadataA.geolocation.lines[1]
-
-findfirst(metadataA.geolocation.latitude .> 36)
-
-metadataA.geolocation.lines[61]
-windowA = [[1 , 3000],[7600 , 20000]]
-
-findfirst(metadataA.geolocation.longitude .> -118 )
-
-metadataA.geolocation.samples[end]
 
 
-metadataA.swath.lines_per_burst
-## take two first burst of imageA 
-
-
-
-max(metadataA.geolocation.samples...)
-min(metadataA.geolocation.longitude...)
-
-
-get_annotation_path_sentinel1(safe_path::AbstractString, polarisation::Polarisation, swath::Integer)
-metadata = Sentinel1MetaData(metadata_path)
-files =  readdir(folder)
-
-
-
-
-
-
-
-
-
-approx_image_footprint(meta_data,window) = [[latitude_min,latitude_max]],[[longitude_min,longitude_max]]
-approx_image_window(metadata, points) = # use geogridpoints 
 
 
 function get_height_sar_grid(rows,columns,interpolator, metadata, dem_subset)
@@ -411,16 +362,3 @@ struct SingleLookComplexStack
     secondary_images::Vector{CoregisteredSLC}
 end
 
-
-function interpolate_image_to_primary(secondary_image,orbit_interpolator_secondary, GeoCodeTable)
-    index_secondary_image_sparse = coordinates2index(GeoCodeTable.coords,orbit_interpolator_secondary, metadata_secondary)
-    index_secondary_image_dense = blabla
-
-    ##get flattening or similar thing 
-    deramp(secondary_image)
-    data_interpolator = interpolate(data)
-    reasample_data = data_interpolator(index_secondary_image_dense)
-    return reasample_data
-end
-
-end 

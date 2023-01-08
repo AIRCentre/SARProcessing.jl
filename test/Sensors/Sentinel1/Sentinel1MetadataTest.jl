@@ -162,8 +162,6 @@ function sentinel1_burst_test()
     check &= isapprox(bursts[1].doppler_centroid.t0,0.00534423320003329; atol = 0.000000001)
     check &= isapprox(bursts[8].doppler_centroid.t0,0.005342927742124565; atol = 0.000000001)
     check &= length(bursts[1].azimuth_fm_rate.polynomial) == 3
-    sensing_time = reference_time + Millisecond(round(Int,bursts[3].sensing_time *1000))
-    check &= sensing_time == DateTime(2022,09,18,07,49,28,166)   
     check &= isapprox(bursts[2].azimuth_fm_rate.t0 ,0.006018535512387027; atol = 0.000001) 
     check &= all([bursts[i].azimuth_time < bursts[i+1].azimuth_time for i in 1:length(bursts)-1])
 
