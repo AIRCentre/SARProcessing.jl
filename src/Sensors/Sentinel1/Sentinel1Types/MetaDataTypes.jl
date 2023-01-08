@@ -119,7 +119,7 @@ Base.@kwdef struct Sentinel1BurstInformation
     burst_number::Int32
     azimuth_time::Float64
     sensing_time::Float64
-    azimuth_anx_time::Millisecond
+    azimuth_anx_time::Float64
     byte_offset::Int64
     first_valid_sample::Vector{Int64}
     last_valid_sample::Vector{Int64}
@@ -199,15 +199,11 @@ function get_burst_start_times(meta_data::Sentinel1MetaData)
 end
 
 function get_burst_mid_times(meta_data::Sentinel1MetaData)
-    burst_duration_in_seconds = get_burst_duration(meta_data)
-    half_burst_period = Millisecond(round(Int, burst_duration_in_seconds/2 *1000))
-    return get_burst_start_times(meta_data) .+ half_burst_period 
+    return get_burst_start_times(meta_data) .+ get_burst_duration(meta_data)/2 
 end
 
 function get_burst_end_times(meta_data::Sentinel1MetaData)
-    burst_duration_in_seconds = get_burst_duration(meta_data)
-    burst_duration = Millisecond(round(Int, burst_duration_in_seconds*1000))
-    return get_burst_start_times(meta_data) .+ burst_duration 
+    return get_burst_start_times(meta_data) .+ get_burst_duration(meta_data)
 end
 
 function get_burst_duration(meta_data::Sentinel1MetaData)
