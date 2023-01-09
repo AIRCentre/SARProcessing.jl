@@ -54,7 +54,7 @@ function load_test_slc_image(folder, image_number)
     tiff_file = tiffs[image_number]
     is_S1A = split(tiff_file,"_")[1] == "S1A"
 
-    window = is_S1A ? [[100 , 1500],[7600 , 20000]] : [[4*1506 , 4*1506+1600],[7500 , 20100]]
+    window = is_S1A ? [[100 , 1500],[7600 , 20000]] : [[3*1506 , 3*1506+1600],[7500 , 20100]]
 
     metadata = SARProcessing.Sentinel1MetaData(joinpath(folder, annotation_files[image_number]))
     index_start = (window[1][1],window[2][1])
