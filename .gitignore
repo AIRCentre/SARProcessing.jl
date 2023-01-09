@@ -48,3 +48,4 @@ test/testData/largeFiles
 
 # Include sentinel 1 slc subset (size 3.4 Mb)
 !test/testData/s1a-iw3-slc-vv_subset_hight9800_10400_width11000_11000.tiff
+!../juliaEO2023/data/grd_image_hom.tiff"
