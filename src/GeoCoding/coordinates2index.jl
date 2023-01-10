@@ -1,18 +1,18 @@
 
 
 """
-geodetic2SAR_index(geodetic_coordinate::Array{T,1}, interpolator, metadata::MetaData) where T <: Real
+    geodetic2SAR_index(geodetic_coordinate::Array{T,1}, interpolator, metadata::MetaData) where T <: Real
 
-Convert geodetic-coordinates [latitude(radians),longitude(radians),height] 
-to SAR_index (row_from_first_burst, image_column) 
+Convert geodetic-coordinates [latitude(radians),longitude(radians),height]
+to SAR_index (row_from_first_burst, image_column)
 """
 function geodetic2SAR_index(geodetic_coordinate::Array{T,1}, interpolator, metadata::MetaData) where T <: Real
-    
+
     range_pixel_spacing = get_range_pixel_spacing(metadata)
     azimuth_frequency = get_azimuth_frequency(metadata)
     near_range = get_near_range(metadata)
     time_range = get_time_range(metadata)
-    
+
     return geodetic2SAR_index(
         geodetic_coordinate,
         interpolator,
@@ -20,7 +20,7 @@ function geodetic2SAR_index(geodetic_coordinate::Array{T,1}, interpolator, metad
         azimuth_frequency,
         near_range,
         time_range
-        ) 
+        )
 end
 
 
@@ -47,17 +47,17 @@ end
 
 
 """
-ecef2SAR_index(
-    ecef_coordinate::Array{T,1},
-    interpolator,
-    range_pixel_spacing::Real,
-    azimuth_frequency::Real,
-    near_range::Real,
-    image_duration_seconds::Real
-    ) where T <: Real
+    ecef2SAR_index(
+        ecef_coordinate::Array{T,1},
+        interpolator,
+        range_pixel_spacing::Real,
+        azimuth_frequency::Real,
+        near_range::Real,
+        image_duration_seconds::Real
+        ) where T <: Real
 
-Convert ECEF-coordinates [X,Y,Z] 
-to SAR_index (row_from_first_burst, image_column) 
+Convert ECEF-coordinates [X,Y,Z]
+to SAR_index (row_from_first_burst, image_column)
 """
 function ecef2SAR_index(
     ecef_coordinate::Array{T,1},
@@ -80,7 +80,7 @@ end
 
 
 #TODO A faster way would probably be to project the line of sight component in the v direction (dx_v)
-# and then change the time with dx_v/v until the time steps gets small enough, 
+# and then change the time with dx_v/v until the time steps gets small enough,
 function find_zero_doppler_time(ecef_coordinate::Array{T,1}, time_range , interpolator;
     tolerance_in_seconds::Real = 1e-6) where T <: Real
 
@@ -102,12 +102,12 @@ function find_zero_doppler_time(ecef_coordinate::Array{T,1}, time_range , interp
         sin_squint_angle = _get_sin_squint_angle(ecef_coordinate, time_i , interpolator)
 
         if (sin_squint_angle < 0) # The satellite has already passed the point at time_i
-            search_interval_end = time_i  
+            search_interval_end = time_i
         else # The satellite has not yet passed the point at time_i
-            search_interval_start = time_i 
+            search_interval_start = time_i
         end
     end
-    
+
     return time_i
 end
 

@@ -1,16 +1,16 @@
 
 """
-sar_index2geodetic(row_from_first_burst,
-    image_column, 
-    height, 
-    interpolator,
-    metadata::MetaData)
+    sar_index2geodetic(row_from_first_burst,
+        image_column,
+        height,
+        interpolator,
+        metadata::MetaData)
 
-    Convert SAR_index (row_from_first_burst, image_column) to geodetic coordinates [latitude(radians),longitude(radians),height] 
+Convert SAR_index (row_from_first_burst, image_column) to geodetic coordinates [latitude(radians),longitude(radians),height]
 """
 function sar_index2geodetic(row_from_first_burst::Real,
-    image_column::Real, 
-    height::Real, 
+    image_column::Real,
+    height::Real,
     interpolator,
     metadata::MetaData)
 
@@ -21,11 +21,11 @@ function sar_index2geodetic(row_from_first_burst::Real,
     incidence_angle_mid = get_incidence_angle_mid_degrees(metadata) * pi/180
 
     return  sar_index2geodetic(row_from_first_burst,
-        image_column, 
-        height, 
+        image_column,
+        height,
         interpolator,
         time_range[1],
-        incidence_angle_mid, 
+        incidence_angle_mid,
         range_pixel_spacing,
         azimuth_frequency,
         near_range)
@@ -33,11 +33,11 @@ end
 
 
 function sar_index2geodetic(row_from_first_burst::Real,
-     image_column::Real, 
-     height::Real, 
+     image_column::Real,
+     height::Real,
      interpolator,
      t_start::Real,
-     incidence_angle_mid::Real, 
+     incidence_angle_mid::Real,
      range_pixel_spacing::Real,
      azimuth_frequency::Real,
      near_range::Real)
@@ -46,7 +46,7 @@ function sar_index2geodetic(row_from_first_burst::Real,
     range = column2range(image_column,range_pixel_spacing,near_range)
 
     orbit_state = interpolator(time)
-    
+
     approximate_intersect = approx_point(orbit_state,incidence_angle_mid)
 
     x_ecef = solve_radar(range,height,approximate_intersect,orbit_state)
@@ -60,9 +60,9 @@ end
 
 """
     solve_radar
-    Find the point that is range away from the satellite, orthogonal on the flight directions
-    and "height" above the elipsiod using Newton_rhapsody method.
-   
+
+Find the point that is range away from the satellite, orthogonal on the flight directions
+and "height" above the elipsiod using Newton_rhapsody method.
 """
 function solve_radar(range::Real,height::Real,point_guess::Vector{T},orbit_state::OrbitState;
         scale_factor = 1e-03,MAX_ITER = 150,tolerance = 1e-6,
@@ -129,13 +129,14 @@ end
 
 
 approx_point(orbit_state::OrbitState,incidence_angle_mid::Real) = ellipsoid_intersect(
-                                                        orbit_state.position, 
+                                                        orbit_state.position,
                                                         approx_line_of_sight(orbit_state,incidence_angle_mid))
 
 """
-approx_line_of_sight(orbit_state::OrbitState,incidence_angle_mid::Real)
-    # Output
-    - `line_of_sight::Array{float}(3)`: Line of sight to mid swath
+    approx_line_of_sight(orbit_state::OrbitState,incidence_angle_mid::Real)
+
+# Output
+- `line_of_sight::Array{float}(3)`: Line of sight to mid swath
 
 #TODO, interpolate geolocationGridPoint from metadata instead?
 """

@@ -1,5 +1,5 @@
-@doc raw"""
-    The two paramter (TP)-CFAR object detection method described in The State-of-the-Art in Ship Detection in Synthetic Aperture Radar imagery, D.J. Crips, 2004, in section 5.2 Adaptive threshold algorithms
+"""
+The two paramter (TP)-CFAR object detection method described in The State-of-the-Art in Ship Detection in Synthetic Aperture Radar imagery, D.J. Crips, 2004, in section 5.2 Adaptive threshold algorithms
 
 Finding CFAR for all pixels in an image.
 """
@@ -16,13 +16,13 @@ function two_parameter_constant_false_alarm_rate(image::Matrix{T},background_siz
             window_under_test = padded_image[i_row:i_row+background_size-1,j_column:j_column+background_size-1]
             targets[i_row,j_column] = _two_parameter_constant_false_alarm_rate_pixel(window_under_test, guard_size,  pfa)
         end
-    end    
+    end
     return targets
 end
 
 
 
-@doc raw"""
+"""
 
 
 """
@@ -36,7 +36,7 @@ function _two_parameter_constant_false_alarm_rate_pixel(image::Matrix{T}, guard_
     cfar_threshold = sqrt(2)*SpecialFunctions.erfinv(1-2*pfa) # PFA = (1/2)-(1/2)*erf(t/sqrt(2))
     #the target pixel is the center pixel of the image
     target = image[half_baground_size,half_baground_size]
-    
+
     background_kernel = ones(Bool,size(image)...)
     background_kernel[guard_start:guard_end, guard_start:guard_end] .= false
     background = image[background_kernel]
@@ -51,4 +51,3 @@ function _two_parameter_constant_false_alarm_rate_pixel(image::Matrix{T}, guard_
     end
     return target
 end
-

@@ -1,5 +1,5 @@
 """"
-Structures and constructors for the metadata. 
+Structures and constructors for the metadata.
     Sentinel1MetaData
         - ::Sentinel1Header
         - ::Sentinel1ProductInformation
@@ -17,7 +17,7 @@ Structures and constructors for the metadata.
 ##################
 ##base.@kwdef not a part of stable julia. Probably will be future release(?)
 """
-Sentinel1Header
+    Sentinel1Header
 
 returns structure of Sentinel1Header from metadata in .xml
 """
@@ -36,9 +36,9 @@ end
 
 
 """
-Sentinel1ProductInformation
+    Sentinel1ProductInformation
 
-returns structure of product information 
+returns structure of product information
 """
 Base.@kwdef struct Sentinel1ProductInformation
     pass::String
@@ -53,7 +53,7 @@ end
 
 
 """
-Sentinel1ImageInformation
+    Sentinel1ImageInformation
 
 returns structure of Sentinel1ImageInformation from metadata in .xml
 """
@@ -68,7 +68,7 @@ Base.@kwdef struct Sentinel1ImageInformation
 end
 
 """
-Sentinel1SwathTiming
+    Sentinel1SwathTiming
 
 returns structure of Sentinel1SwathTiming from metadata in .xml
 """
@@ -82,7 +82,7 @@ end
 
 
 """
-Sentinel1DopplerCentroid
+    Sentinel1DopplerCentroid
 
 returns structure of Sentinel1DopplerCentroid from metadata in .xml
 Sentinel1DopplerCentroid is calculated for each burst, and is therefore saved in each burst
@@ -96,7 +96,7 @@ end
 
 
 """
-Sentinel1AzimuthFmRate
+    Sentinel1AzimuthFmRate
 
 returns structure of Sentinel1AzimuthFmRate from metadata in .xml
 Sentinel1AzimuthFmRate is calculated for each burst, and is therefore saved in each burst
@@ -110,7 +110,7 @@ end
 
 
 """
-Sentinel1BurstInformation
+    Sentinel1BurstInformation
 
 returns structure of Sentinel1BurstInformation from metadata in .xml
 Sentinel1BurstInformation contain information from Sentinel1DopplerCentroid and Sentinel1AzimuthFmRate
@@ -132,7 +132,7 @@ end
 
 
 """
-Sentinel1GeolocationGrid
+    Sentinel1GeolocationGrid
 
 returns structure of Sentinel1GeolocationGrid from metadata in .xml
 """
@@ -151,25 +151,26 @@ end
 
 
 """
-Sentinel1MetaData:
-    Metadata structure for the Sentinel-1 satellite for each burst in the swath.
+    Sentinel1MetaData
 
-    General metadata info is kept in the following structures:
-        - Sentinel1Header
-        - Sentinel1ProductInformation
-        - Sentinel1ImageInformation
-        - Sentinel1SwathTiming
-        - Sentinel1GeolocationGrid
-    Sentinel1BurstInformation specific Info is kept in 
-        - Vector{Sentinel1BurstInformation}
-   
-Example:
+Metadata structure for the Sentinel-1 satellite for each burst in the swath.
+
+General metadata info is kept in the following structures:
+- `Sentinel1Header`
+- `Sentinel1ProductInformation`
+- `Sentinel1ImageInformation`
+- `Sentinel1SwathTiming`
+- `Sentinel1GeolocationGrid`
+`Sentinel1BurstInformation` specific Info is kept in
+- `Vector{Sentinel1BurstInformation}`
+
+# Example
     slcMetadata = Sentinel1MetaData(meta_dict)
 
-    Input:
-        meta_dict: xml file.
+# Input
+- `meta_dict`: xml file.
 
-    can be accessed as, e.g., 
+Can be accessed as, e.g.,
     slcMetadata.product.radar_frequency --> 5.40500045433435e9::Float64
     slcMetadata.header.swath --> 1::Int
     slcMetadata.header.mode --> "IW"::String
@@ -199,7 +200,7 @@ function get_burst_start_times(meta_data::Sentinel1MetaData)
 end
 
 function get_burst_mid_times(meta_data::Sentinel1MetaData)
-    return get_burst_start_times(meta_data) .+ get_burst_duration(meta_data)/2 
+    return get_burst_start_times(meta_data) .+ get_burst_duration(meta_data)/2
 end
 
 function get_burst_end_times(meta_data::Sentinel1MetaData)
@@ -230,9 +231,9 @@ end
 
 
 """
-get_image_rows(meta_data::Sentinel1MetaData, row_from_first_burst)
+    get_image_rows(meta_data::Sentinel1MetaData, row_from_first_burst)
 
-Converts the row number representing a unique azimuth time, row_from_first_burst, 
+Converts the row number representing a unique azimuth time, row_from_first_burst,
 to the number in the full image. Note that two results are returned when the row appears in
 two bursts
 """
@@ -241,7 +242,7 @@ function get_image_rows(meta_data::Sentinel1MetaData, row_from_first_burst)
     lines_per_burst = meta_data.swath.lines_per_burst
     burst_start_row = get_burst_start_row(meta_data)
 
-    row_in_burst = row_from_first_burst .- burst_row_offset 
+    row_in_burst = row_from_first_burst .- burst_row_offset
 
     is_row_in_burst =  (1 .<= row_in_burst) .& (row_in_burst .<= lines_per_burst)
 
