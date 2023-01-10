@@ -6,3 +6,5 @@
 
 
 SARProcessing.jl is flexible package for processing of synthetic aperture radar image written in Julia
+
+JuliaEO 2023 workshop data: https://we.tl/t-42CPKlWNJk
