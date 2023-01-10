@@ -6,9 +6,9 @@ end
 
 
 """
-sar2gray(data::AbstractArray; p_quantile = 0.85)
+    sar2gray(data::AbstractArray; p_quantile = 0.85)
 
-Maps the data to values between 0 and 1 and convert into a gray scaled image. 
+Maps the data to values between 0 and 1 and convert into a gray scaled image.
 The minimum `data` value is mapped to 0 and all values above the `p_quantile` is mapped to 1
 """
 function sar2gray(data::AbstractArray{T}; p_quantile = 0.85) where T <: Real

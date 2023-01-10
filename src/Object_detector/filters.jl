@@ -3,14 +3,14 @@ const EDGE_HORIZONTAL = [1 2 1;0 0 0;-1 -2 -1]
 const EDGE_VERTICAL = [1 0 -1;2 0 -2;1 0 -1]
 
 """"
-meanFilter
-    Creates a mean filter for a iamge
+    mean_filter
 
-examples:
-        filter = meanFilter([3,3])
-        or 
-        filter = meanFilter([3]) 
+Creates a mean filter for a image
 
+# Examples
+    filter = meanFilter([3,3])
+    or
+    filter = meanFilter([3])
 """
 function mean_filter(size::Vector{Int64}=[3,3])::Matrix{Float64}
     if length(size)==1
@@ -26,11 +26,12 @@ end
 
 
 """"
-sobelFilter(input::Matrix{Float64},stride::Int64 = 1,padding::String="same")::Matrix{Float64}
-    Creates a sobelFilter for a image using edgeVertical() and edgeHorizontal()
+    sobelFilter(input::Matrix{Float64},stride::Int64 = 1,padding::String="same")::Matrix{Float64}
 
-examples:
-        sobel_image = filters.sobelFilter(image)
+Creates a sobelFilter for a image using edgeVertical() and edgeHorizontal()
+
+# Examples
+    sobel_image = filters.sobelFilter(image)
 """
 function sobel_filter(input::Matrix{T} where T <: Real,
                     stride::Integer = 1,

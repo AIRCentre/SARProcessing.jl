@@ -1,9 +1,9 @@
 
-struct OrbitState 
+struct OrbitState
     time::Dates.DateTime
-    position::Array{Float64,1} 
+    position::Array{Float64,1}
     velocity::Array{Float64,1}
-end 
+end
 
 
 get_speed(state::OrbitState) = LinearAlgebra.norm(state.velocity)
@@ -14,39 +14,39 @@ function get_burst_mid_states(image::SingleLookComplex, interpolator)
 end
 
 """
-orbit_state_interpolator(orbit_states::Vector{OrbitState}, image::SARImage, 
-    polynomial_degree::Integer=4, margin::Integer = 3 )
+    orbit_state_interpolator(orbit_states::Vector{OrbitState}, image::SARImage,
+        polynomial_degree::Integer=4, margin::Integer = 3 )
 
-    Create a polynomial interpolation function for orbit states valid in the time span
-    from image start time to image end time.
+Create a polynomial interpolation function for orbit states valid in the time span
+from image start time to image end time.
 
-    #Returns
-    Anonymous interpolation function. (Input: seconds_from_t_start::Float64, Output: state::OrbitState)
+# Returns
+Anonymous interpolation function. (Input: seconds_from_t_start::Float64, Output: state::OrbitState)
 """
-function orbit_state_interpolator(orbit_states::Vector{OrbitState}, image::SARImage; 
+function orbit_state_interpolator(orbit_states::Vector{OrbitState}, image::SARImage;
     polynomial_degree::Integer=4, margin::Integer = 3 )
-    
-    orbit_state_interpolator(orbit_states, get_metadata(image); 
+
+    orbit_state_interpolator(orbit_states, get_metadata(image);
     polynomial_degree=polynomial_degree, margin = margin )
 end
 
-function orbit_state_interpolator(orbit_states::Vector{OrbitState}, metadata::MetaData; 
+function orbit_state_interpolator(orbit_states::Vector{OrbitState}, metadata::MetaData;
     polynomial_degree::Integer=4, margin::Integer = 3 )
-    
+
     time_range = get_time_range(metadata)
-    reference_time = get_reference_time(metadata) 
+    reference_time = get_reference_time(metadata)
 
     orbit_sate_start =  Dates.value(orbit_states[1].time-reference_time)/1000.0
     orbit_sate_end = Dates.value(orbit_states[end].time-reference_time)/1000.0
     # check that the orbit states cover the image
-    @assert (orbit_sate_start < time_range[1]) &&  
+    @assert (orbit_sate_start < time_range[1]) &&
             (time_range[2] < orbit_sate_end)
-    
-    orbit_state_interpolator(orbit_states, time_range, reference_time ; 
+
+    orbit_state_interpolator(orbit_states, time_range, reference_time ;
     polynomial_degree=polynomial_degree, margin = margin )
 end
 
-function orbit_state_interpolator(orbit_states::Vector{OrbitState}, time_range, reference_time::DateTime; 
+function orbit_state_interpolator(orbit_states::Vector{OrbitState}, time_range, reference_time::DateTime;
     polynomial_degree::Integer=4, margin::Integer = 3 )
 
 
@@ -71,15 +71,15 @@ function orbit_state_interpolator(orbit_states::Vector{OrbitState}, time_range, 
     velocity_polynomial = [Polynomials.fit(seconds, normalised_velocity[i,:], polynomial_degree) for i =1:3]
 
     ## create interpolation function
-    interpolator = t_seconds -> 
+    interpolator = t_seconds ->
     begin
         @assert ((time_range[1]) <= t_seconds) && (t_seconds <= (time_range[2]))  "t is outside time_range"
 
         interpolated_position= _interpolate_3d_vector(t_seconds, position_polynomial,
-            mean_position, std_position) 
+            mean_position, std_position)
 
         interpolated_velocity= _interpolate_3d_vector(t_seconds, velocity_polynomial,
-            mean_velocity, std_velocity) 
+            mean_velocity, std_velocity)
 
         t = reference_time + Millisecond(round(Int,t_seconds*1000))
         interpolated_orbit_state = OrbitState(t,interpolated_position, interpolated_velocity)
@@ -115,5 +115,3 @@ function _normalise_dim2(values::Matrix)
     normalised_values= (values .- mean_values) ./std_values;
     return normalised_values, mean_values, std_values
 end
-
-

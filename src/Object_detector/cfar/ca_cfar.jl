@@ -1,5 +1,5 @@
-@doc raw"""
-    The two paramter (TP)-CFAR object detection method described in The State-of-the-Art in Ship Detection in Synthetic Aperture Radar imagery, D.J. Crips, 2004, in section 5.2 Adaptive threshold algorithms
+"""
+The two paramter (TP)-CFAR object detection method described in The State-of-the-Art in Ship Detection in Synthetic Aperture Radar imagery, D.J. Crips, 2004, in section 5.2 Adaptive threshold algorithms
 
 Finding CFAR for all pixels in an image.
 """
@@ -16,13 +16,13 @@ function cell_averaging_constant_false_alarm_rate(image::Matrix{T},background_si
             window_under_test = padded_image[i_row:i_row+background_size-1,j_column:j_column+background_size-1]
             targets[i_row,j_column] = _cell_averaging_constant_false_alarm_rate_pixel(window_under_test, guard_size, target_size, pfa)
         end
-    end    
+    end
     return targets
 end
 
 
 
-@doc raw"""
+"""
 
 
 """
@@ -38,7 +38,7 @@ function _cell_averaging_constant_false_alarm_rate_pixel(image::Matrix{T}, guard
     #the target pixel is the center pixel of the image
     target_kernel = image[half_baground_size-half_target_size:half_baground_size+half_target_size,half_baground_size-half_target_size:half_baground_size+half_target_size]
     target = image[half_baground_size,half_baground_size]
-    
+
     cfar_threshold = cfar_threshold/sqrt(length(target_kernel))
     background_kernel = ones(Bool,size(image)...)
     background_kernel[guard_start:guard_end, guard_start:guard_end] .= false
@@ -55,4 +55,3 @@ function _cell_averaging_constant_false_alarm_rate_pixel(image::Matrix{T}, guard
     end
     return target
 end
-
