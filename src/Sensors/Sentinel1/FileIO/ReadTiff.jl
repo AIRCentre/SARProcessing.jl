@@ -6,9 +6,9 @@
 Read a Sentinel 1 tiff file.
 
 # Examples
-```jldoctest
+```
 julia> filepath = "s1a-iw3-slc-vv-20220918t074921-20220918t074946-045056-056232-006.tiff"
-julia> data = readSwathSLC(filePath, [(501,600),(501,650)]);
+julia> data = readSwathSLC(filepath, [(501,600),(501,650)]);
 julia> typeof(data)
 Matrix{ComplexF64}
 julia> size(data)

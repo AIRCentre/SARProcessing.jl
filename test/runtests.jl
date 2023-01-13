@@ -2,7 +2,7 @@
 using SARProcessing, Test, Dates, LinearAlgebra
 using Statistics
 
-import ArchGDAL, Images
+import ArchGDAL, Images, Aqua
 
 
 const PRECISE_ORBIT_TEST_FILE = "testData/S1A_OPER_AUX_POEORB_20221119T081845.EOF"
@@ -26,7 +26,7 @@ end
     include("GeoCoding/DEMTest.jl")
     include("GeoCoding/coordinates2indexTest.jl")
     include("GeoCoding/SarIndex2CoordinatesTest.jl")
-    
+
     include("VisualiseSAR/VisualiseSARTest.jl")
 
     include("Sensors/Sentinel1/Sentinel1TypesTest.jl")
@@ -45,7 +45,5 @@ end
     include("object_detector/object_detector_filter_test.jl")
     include("object_detector/object_detector_operations_test.jl")
 
-
+    Aqua.test_all(SARProcessing; ambiguities = false)
 end
-
-

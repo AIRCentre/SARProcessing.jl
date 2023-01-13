@@ -7,7 +7,7 @@ const WGS84_FLATTENING = 1/298.257223563
     geodetic2ecef(geodetic_coordinate::Array{Real,1}; semi_major_axis::Real=WGS84_SEMI_MAJOR_AXIS,
         flattening::Real=WGS84_FLATTENING)
 
-Convert geodetic-coordinates [latitude(radians),longitude(radians),height] (WGS-84) to ECEF-coordinates [X,Y,Z]
+Convert geodetic-coordinates `[latitude(radians),longitude(radians),height]` (WGS-84) to ECEF-coordinates `[X,Y,Z]`
 """
 function geodetic2ecef(geodetic_coordinate::Array{T,1}; semi_major_axis::Real=WGS84_SEMI_MAJOR_AXIS,
     flattening::Real=WGS84_FLATTENING) where T <: Real
@@ -36,7 +36,7 @@ end
                         semi_major_axis=6378137., flattening=1/298.257223563,
                         tolerance_latitude = 1.e-12, tolerance_height = 1.e-5)
 
-Convert ECEF-coordinates [X,Y,Z] to geodetic-coordinates [latitude(radians),longitude(radians),height] (WGS-84) radians
+Convert ECEF-coordinates `[X,Y,Z]` to geodetic-coordinates `[latitude(radians),longitude(radians),height]` (WGS-84) radians
 
 (Based on B.R. Bowring, "The accuracy of geodetic latitude and height equations",
 Survey Review, v28 #218, October 1985 pp.202-206).
