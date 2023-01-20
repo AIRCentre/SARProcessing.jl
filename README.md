@@ -5,7 +5,7 @@
 [![Codecov](https://codecov.io/gh/AIRCentre/SARProcessing.jl/branch/main/graph/badge.svg)](https://codecov.io/gh/AIRCentre/SARProcessing.jl)
 
 <p align="center">
-<img src="figures/detect_ship.png" height="200"><br>
+<img src="examples/figures/detect_ship.png" height="200"><br>
 
 SARProcessing.jl is a flexible package for the processing of SAR data written in Julia. Its current features include loading [Single-Look-Complex](https://sentinels.copernicus.eu/web/sentinel/technical-guides/sentinel-1-sar/products-algorithms/level-1-algorithms/single-look-complex) (SLC) and [Ground-Range-Detected](https://sentinels.copernicus.eu/web/sentinel/technical-guides/sentinel-1-sar/products-algorithms/level-1-algorithms/ground-range-detected) (GRD) images, speckle reduction, object detection in SAR image, interferometry, and more. With a low barrier to entry and a large ecosystem of tools and libraries that allow quick prototyping, Julia has great potential for geospatial development. SARProcessing.jl is a much open-source project with the aim of making SAR data processing easy and fast for everyone. 
 
@@ -84,7 +84,7 @@ image_cp_cfar = SARProcessing.constant_false_alarm_rate_with_convolution_and_poo
 SARProcessing.sar2gray(image_cp_cfar, p_quantile = 0.95)
 ```
 
-Getting location of objects and subset are further described in the [tutorial] (https://github.com/AIRCentre/JuliaEO/blob/main/notebooks/hands_on_sessions/Working_with_SAR_and_InSAR_Data/SARProcessing/3_Object_detection.ipynb).
+Getting location of objects and subset are further described in the [tutorial](https://github.com/AIRCentre/JuliaEO/blob/main/notebooks/hands_on_sessions/Working_with_SAR_and_InSAR_Data/SARProcessing/3_Object_detection.ipynb).
 
 ### InSAR
 
