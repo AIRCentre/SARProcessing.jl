@@ -5,7 +5,7 @@
 [![Codecov](https://codecov.io/gh/AIRCentre/SARProcessing.jl/branch/main/graph/badge.svg)](https://codecov.io/gh/AIRCentre/SARProcessing.jl)
 
 <p align="center">
-<img src="/Users/igaszczesniak/JuliaEO/notebooks/hands_on_sessions/Working_with_SAR_and_InSAR_Data/SARProcessing/figures/detect_ship.png" height="200"><br>
+<img src="figures/detect_ship.png" height="200"><br>
 
 SARProcessing.jl is a flexible package for the processing of SAR data written in Julia. Its current features include loading [Single-Look-Complex](https://sentinels.copernicus.eu/web/sentinel/technical-guides/sentinel-1-sar/products-algorithms/level-1-algorithms/single-look-complex) (SLC) and [Ground-Range-Detected](https://sentinels.copernicus.eu/web/sentinel/technical-guides/sentinel-1-sar/products-algorithms/level-1-algorithms/ground-range-detected) (GRD) images, speckle reduction, object detection in SAR image, interferometry, and more. With a low barrier to entry and a large ecosystem of tools and libraries that allow quick prototyping, Julia has great potential for geospatial development. SARProcessing.jl is a much open-source project with the aim of making SAR data processing easy and fast for everyone. 
 
@@ -92,11 +92,11 @@ Getting location of objects and subset are further described in the [tutorial] (
 
 ## Project Status
 
-The package is under development and the first version 0.1 will be released soon. Breaking changes are expected and some core missing features will be added. Upon that package version, 1.0 will be released and registered as an official Julia package.
+The package is under development and we hope to registerer version 0.1 as an official Julia package soon. The package contains some bugs at the moment and the results are currently not validated. Documentation and validation will be added before the first release. Breaking changes are expected until version 1.0.
 
 As with all open-source software, please try it out and report your experience. We will be happy to gather any users' feedback to improve.
 
-The package is tested on the current Julia version (1.8), and the current master on macOS.
+The package is tested against Julia 1.6, 1.8, and the current master on Windows, Linux and macOS.
 
 ## Contributing and Questions
 
