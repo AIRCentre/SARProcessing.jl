@@ -23,6 +23,23 @@ end
 
 
 
+function load_sentinel1_slc(safe_path::AbstractString, polarisation::Polarisation, swath::Integer, burst_number::Integer)
+    tiff_path = get_data_path_sentinel1(safe_path, polarisation, swath)
+    metadata_path = get_annotation_path_sentinel1(safe_path, polarisation, swath)
+    
+    metadata = Sentinel1MetaData(metadata_path)
+
+    window = get_burst_window(metadata, burst_number)
+    data = load_tiff(tiff_path, window, convertToDouble = true, flip = true)
+    
+    index_start = (window[1][1],window[2][1])
+
+    
+    return Sentinel1SLC( metadata, index_start, data,false)
+end
+
+
+
 function get_annotation_path_sentinel1(safe_path::AbstractString, polarisation::Polarisation, swath::Integer)
 
     files = readdir(joinpath(safe_path,"annotation"))

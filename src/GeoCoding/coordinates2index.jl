@@ -6,12 +6,13 @@ geodetic2SAR_index(geodetic_coordinate::Array{T,1}, interpolator, metadata::Meta
 Convert geodetic-coordinates [latitude(radians),longitude(radians),height] 
 to SAR_index (row_from_first_burst, image_column) 
 """
-function geodetic2SAR_index(geodetic_coordinate::Array{T,1}, interpolator, metadata::MetaData) where T <: Real
+function geodetic2SAR_index(geodetic_coordinate::Array{T,1}, interpolator, metadata::MetaData, burst_number) where T <: Real
     
     range_pixel_spacing = get_range_pixel_spacing(metadata)
     azimuth_frequency = get_azimuth_frequency(metadata)
     near_range = get_near_range(metadata)
     time_range = get_time_range(metadata)
+    burst_start_time = get_burst_start_times(metadata)[burst_number]
     
     return geodetic2SAR_index(
         geodetic_coordinate,
@@ -19,7 +20,8 @@ function geodetic2SAR_index(geodetic_coordinate::Array{T,1}, interpolator, metad
         range_pixel_spacing,
         azimuth_frequency,
         near_range,
-        time_range
+        time_range,
+        burst_start_time
         ) 
 end
 
@@ -30,7 +32,8 @@ function geodetic2SAR_index(
     range_pixel_spacing::Real,
     azimuth_frequency::Real,
     near_range::Real,
-    time_range
+    time_range,
+    burst_start_time
     ) where T <: Real
 
     ecef_coordinate = geodetic2ecef(geodetic_coordinate)
@@ -41,7 +44,8 @@ function geodetic2SAR_index(
         range_pixel_spacing,
         azimuth_frequency,
         near_range,
-        time_range
+        time_range,
+        burst_start_time
         )
 end
 
@@ -57,7 +61,7 @@ ecef2SAR_index(
     ) where T <: Real
 
 Convert ECEF-coordinates [X,Y,Z] 
-to SAR_index (row_from_first_burst, image_column) 
+to SAR_index (row_in_burst, image_column) 
 """
 function ecef2SAR_index(
     ecef_coordinate::Array{T,1},
@@ -65,16 +69,17 @@ function ecef2SAR_index(
     range_pixel_spacing::Real,
     azimuth_frequency::Real,
     near_range::Real,
-    time_range
+    time_range,
+    burst_start_time::Real
     ) where T <: Real
 
     delta_time = find_zero_doppler_time(ecef_coordinate, time_range , interpolator)
     range = LinearAlgebra.norm(ecef_coordinate .- interpolator(delta_time).position)
 
-    row_from_first_burst = azimuth_time2row(delta_time,azimuth_frequency,time_range[1])
+    row_in_burst = azimuth_time2row_in_burst(delta_time,azimuth_frequency,burst_start_time)
     image_column = range2column(range,range_pixel_spacing,near_range)
 
-    return row_from_first_burst, image_column
+    return row_in_burst, image_column
 end
 
 
@@ -82,7 +87,7 @@ end
 #TODO A faster way would probably be to project the line of sight component in the v direction (dx_v)
 # and then change the time with dx_v/v until the time steps gets small enough, 
 function find_zero_doppler_time(ecef_coordinate::Array{T,1}, time_range , interpolator;
-    tolerance_in_seconds::Real = 1e-6) where T <: Real
+    tolerance_in_seconds::Real = 1e-7) where T <: Real
 
     # Use float seconds for sub millisecond accuracy
     search_interval_start = time_range[1]

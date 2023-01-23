@@ -8,41 +8,42 @@ sar_index2geodetic(row_from_first_burst,
 
     Convert SAR_index (row_from_first_burst, image_column) to geodetic coordinates [latitude(radians),longitude(radians),height] 
 """
-function sar_index2geodetic(row_from_first_burst::Real,
+function sar_index2geodetic(row_in_burst::Real,
     image_column::Real, 
     height::Real, 
     interpolator,
-    metadata::MetaData)
+    metadata::MetaData,
+    burst_number::Integer)
 
     range_pixel_spacing = get_range_pixel_spacing(metadata)
     azimuth_frequency = get_azimuth_frequency(metadata)
     near_range = get_near_range(metadata)
-    time_range = get_time_range(metadata)
     incidence_angle_mid = get_incidence_angle_mid_degrees(metadata) * pi/180
+    burst_start_time = get_burst_start_times(metadata)[burst_number]
 
-    return  sar_index2geodetic(row_from_first_burst,
+    return  sar_index2geodetic(row_in_burst,
         image_column, 
         height, 
         interpolator,
-        time_range[1],
         incidence_angle_mid, 
         range_pixel_spacing,
         azimuth_frequency,
-        near_range)
+        near_range,
+        burst_start_time)
 end
 
 
-function sar_index2geodetic(row_from_first_burst::Real,
+function sar_index2geodetic(row_in_burst::Real,
      image_column::Real, 
      height::Real, 
      interpolator,
-     t_start::Real,
      incidence_angle_mid::Real, 
      range_pixel_spacing::Real,
      azimuth_frequency::Real,
-     near_range::Real)
+     near_range::Real,
+     burst_start_time::Real)
 
-    time = row2azimuth_time(row_from_first_burst,azimuth_frequency,t_start)
+    time = row_in_burst2azimuth_time(row_in_burst,azimuth_frequency,burst_start_time)
     range = column2range(image_column,range_pixel_spacing,near_range)
 
     orbit_state = interpolator(time)
@@ -65,7 +66,7 @@ end
    
 """
 function solve_radar(range::Real,height::Real,point_guess::Vector{T},orbit_state::OrbitState;
-        scale_factor = 1e-03,MAX_ITER = 150,tolerance = 1e-6,
+        scale_factor = 1e-03,MAX_ITER = 150,tolerance = 1e-7,
          semi_major_axis=WGS84_SEMI_MAJOR_AXIS,flattening=WGS84_FLATTENING) where T <: Real
 
 

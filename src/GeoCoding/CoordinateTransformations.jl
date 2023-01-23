@@ -43,7 +43,7 @@ ecef2geodetic(ecef_coordinate::Array{Real,1};
 """
 function ecef2geodetic(ecef_coordinate::Array{T,1};
                         semi_major_axis::Real=WGS84_SEMI_MAJOR_AXIS,flattening::Real=WGS84_FLATTENING,
-                        tolerance_latitude::Real = 1.e-12, tolerance_height::Real = 1.e-5, max_iterations=1000) where T <: Real
+                        tolerance_latitude::Real = 1.e-12, tolerance_height::Real = 1.e-6, max_iterations=1000) where T <: Real
     
     
     x = ecef_coordinate[1]

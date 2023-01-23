@@ -249,3 +249,11 @@ function get_image_rows(meta_data::Sentinel1MetaData, row_from_first_burst)
 
     return image_row[is_row_in_burst]
 end
+
+function get_burst_window(metadata::Sentinel1MetaData,burst_number) 
+    window = [[(metadata.swath.lines_per_burst*(burst_number-1)+1),
+    metadata.swath.lines_per_burst*burst_number],[1,metadata.swath.samples_per_burst]]
+    return window 
+end
+
+

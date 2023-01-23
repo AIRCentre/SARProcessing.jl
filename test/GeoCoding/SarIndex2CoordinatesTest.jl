@@ -44,12 +44,12 @@ function sar_index2geodetic_test(latitude,longitude,height)
      orbit_states = SARProcessing.load_precise_orbit_sentinel1(PRECISE_ORBIT_TEST_FILE2)
      image = load_test_slc_image()
      interpolator = SARProcessing.orbit_state_interpolator(orbit_states,image.metadata)
-     SAR_index = SARProcessing.geodetic2SAR_index(geodetic_coordinate, interpolator, image.metadata)
+     SAR_index = SARProcessing.geodetic2SAR_index(geodetic_coordinate, interpolator, image.metadata,7)
  
      ## Act
      point_geodetic = SARProcessing.sar_index2geodetic(SAR_index..., geodetic_coordinate[3], 
      interpolator,
-     image.metadata)
+     image.metadata, 7)
      
     
     #Assert

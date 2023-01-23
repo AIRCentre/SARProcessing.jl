@@ -10,9 +10,9 @@ function get_image_duration_seconds(meta_data::MetaData)::Float64
 end
 
 
-azimuth_time2row(azimuth_time::Real,azimuth_frequency,start_time) =  1 + (azimuth_time-start_time) * azimuth_frequency
+azimuth_time2row_in_burst(azimuth_time::Real,azimuth_frequency,burst_start_time) =  1 + (azimuth_time-burst_start_time) * azimuth_frequency
 
-row2azimuth_time(row_from_first_burst::Real,azimuth_frequency,start_time) = start_time + (row_from_first_burst-1)/azimuth_frequency 
+row_in_burst2azimuth_time(row_in_burst::Real,azimuth_frequency,burst_start_time) = burst_start_time + (row_in_burst-1)/azimuth_frequency 
 
 """
 azimuth_time2row(azimuth_time::Real,metadata::MetaData)
@@ -22,10 +22,9 @@ azimuth_time2row(azimuth_time::Real,metadata::MetaData)
     Note: That the burst overlap is not considered in this function. 
     The actual image row will thus differ.
 """
-function azimuth_time2row(azimuth_time::Real,metadata::MetaData)
+function azimuth_time2row_in_burst(azimuth_time::Real,metadata::MetaData, burst_number)
     azimuth_frequency = get_azimuth_frequency(metadata)
-    time_range = get_time_range(metadata)
-    return azimuth_time2row(azimuth_time::Real,azimuth_frequency,time_range[1])
+    return azimuth_time2row_in_burst(azimuth_time,azimuth_frequency,get_burst_start_times(metadata)[burst_number])
 end
 
 
@@ -36,10 +35,9 @@ row2azimuth_time(row_from_first_burst::Real,metadata::MetaData)
 
     Note: That the burst overlap is not considered in this function. 
 """
-function row2azimuth_time(row_from_first_burst::Real,metadata::MetaData)
+function row_in_burst2azimuth_time(row_in_burst::Real, metadata::MetaData, burst_number)
     azimuth_frequency = get_azimuth_frequency(metadata)
-    time_range = get_time_range(metadata)
-    return row2azimuth_time(row_from_first_burst::Real,azimuth_frequency,time_range[1])
+    return row_in_burst2azimuth_time(row_in_burst,azimuth_frequency,get_burst_start_times(metadata)[burst_number])
 end
 
 range2column(range::Real,range_pixel_spacing,near_range) =  1 + (range - near_range) / range_pixel_spacing
