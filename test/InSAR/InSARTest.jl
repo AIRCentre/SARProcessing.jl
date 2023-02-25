@@ -74,12 +74,12 @@ function phase_ramp_test()
     # ## Get mid burst time and speed
     interpolator = SARProcessing.orbit_state_interpolator(orbit_states, image)
     mid_burst_state = SARProcessing.get_burst_mid_states(image, interpolator)
-    mid_burst_speed = SARProcessing.get_speed.(mid_burst_state)[1]
+    mid_burst_speed = SARProcessing.get_speed.(mid_burst_state)[burst_number]
 
     # Create some matrices of row and colomn indeces
     image_window = SARProcessing.get_window(image)
-    columns = collect(image_window[2][1]:image_window[2][2])
-    rows = collect(image_window[1][1]:image_window[1][2])
+    columns = image_window[2][1]:image_window[2][2]
+    rows = image_window[1][1]:image_window[1][2]
 
     ## Act
     ramp = SARProcessing.phase_ramp(rows, columns, burst_number, mid_burst_speed, meta_data);
@@ -109,12 +109,12 @@ function deramp_test()
     # ## Get mid burst time and speed
     interpolator = SARProcessing.orbit_state_interpolator(orbit_states, image)
     mid_burst_state = SARProcessing.get_burst_mid_states(image,interpolator)
-    mid_burst_speed = SARProcessing.get_speed.(mid_burst_state)[1]
+    mid_burst_speed = SARProcessing.get_speed.(mid_burst_state)[burst_number]
 
     # Create some matrices of row and colomn indeces
     image_window = SARProcessing.get_window(image)
-    columns = collect(image_window[2][1]:image_window[2][2])
-    rows = collect(image_window[1][1]:image_window[1][2])
+    columns = image_window[2][1]:image_window[2][2]
+    rows = image_window[1][1]:image_window[1][2]
 
     ## Act 
     ramp = SARProcessing.phase_ramp(rows, columns, burst_number[1], mid_burst_speed, meta_data);
@@ -144,12 +144,12 @@ function reramp_test()
     # ## Get mid burst time and speed
     interpolator = SARProcessing.orbit_state_interpolator(orbit_states, image)
     mid_burst_state = SARProcessing.get_burst_mid_states(image,interpolator)
-    mid_burst_speed = SARProcessing.get_speed.(mid_burst_state)[1]
+    mid_burst_speed = SARProcessing.get_speed.(mid_burst_state)[burst_number]
 
     # Create some matrices of row and colomn indeces
     image_window = SARProcessing.get_window(image)
-    columns = collect(image_window[2][1]:image_window[2][2])
-    rows = collect(image_window[1][1]:image_window[1][2])
+    columns = image_window[2][1]:image_window[2][2]
+    rows = image_window[1][1]:image_window[1][2]
 
     ramp = SARProcessing.phase_ramp(rows, columns, burst_number[1], mid_burst_speed, meta_data);
 

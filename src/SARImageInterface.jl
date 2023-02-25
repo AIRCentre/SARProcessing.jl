@@ -38,8 +38,7 @@ end
 """
 get_burst_mid_times(image::T) where T <: SingleLookComplex
 
-    Returns a vector of the mid burst times for the burst in the image. 
-    Only bursts included in the image view are included
+    Returns a vector of the mid burst times for all the bursts in the full image. 
 """
 function get_burst_mid_times(image::T) where T <: SingleLookComplex
     throw(ErrorException("get_burst_mid_times(image::T)   must be implemented for all SingleLookComplex types. Type: $T"))
