@@ -1,6 +1,6 @@
 module SARProcessing
 using Dates, Statistics
-import XMLDict, Images, ArchGDAL, Polynomials, LinearAlgebra
+import XMLDict, Images, ArchGDAL, Polynomials, LinearAlgebra, SciPy
 
 
 
