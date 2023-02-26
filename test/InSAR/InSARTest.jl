@@ -74,7 +74,7 @@ function phase_ramp_grid_test()
     # ## Get mid burst time and speed
     interpolator = SARProcessing.orbit_state_interpolator(orbit_states, image)
     mid_burst_state = SARProcessing.get_burst_mid_states(image, interpolator)
-    mid_burst_speed = SARProcessing.get_speed.(mid_burst_state)[1]
+    mid_burst_speed = SARProcessing.get_speed.(mid_burst_state)[burst_number]
 
     # Create some matrices of row and column indices
     image_window = SARProcessing.get_window(image)
@@ -112,7 +112,7 @@ function phase_ramp_test()
     # ## Get mid burst time and speed
     interpolator = SARProcessing.orbit_state_interpolator(orbit_states, image)
     mid_burst_state = SARProcessing.get_burst_mid_states(image, interpolator)
-    mid_burst_speed = SARProcessing.get_speed.(mid_burst_state)[1]
+    mid_burst_speed = SARProcessing.get_speed.(mid_burst_state)[burst_number]
 
     # Create some matrices of row and column indices
     columns = collect(11:15)
@@ -149,7 +149,7 @@ function deramp_test()
     # ## Get mid burst time and speed
     interpolator = SARProcessing.orbit_state_interpolator(orbit_states, image)
     mid_burst_state = SARProcessing.get_burst_mid_states(image,interpolator)
-    mid_burst_speed = SARProcessing.get_speed.(mid_burst_state)[1]
+    mid_burst_speed = SARProcessing.get_speed.(mid_burst_state)[burst_number]
 
     # Create some matrices of row and colomn indeces
     image_window = SARProcessing.get_window(image)
@@ -184,7 +184,7 @@ function reramp_test()
     # ## Get mid burst time and speed
     interpolator = SARProcessing.orbit_state_interpolator(orbit_states, image)
     mid_burst_state = SARProcessing.get_burst_mid_states(image,interpolator)
-    mid_burst_speed = SARProcessing.get_speed.(mid_burst_state)[1]
+    mid_burst_speed = SARProcessing.get_speed.(mid_burst_state)[burst_number]
 
     # Create some matrices of row and column indices
     image_window = SARProcessing.get_window(image)
