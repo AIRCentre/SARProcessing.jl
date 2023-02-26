@@ -16,7 +16,7 @@ _doppler_centroid_frequency(x, dc_param, x0) = dc_param[1] .+ dc_param[2].*(x .-
             dc_tau_0::Float64, fm_coefficient::Vector{Float64},
             fm_tau_0::Float64, f_c::Float64, lines_per_burst::Int64,
             number_of_samples::Int64, delta_t_s::Float64,
-            delta_tau_s::Float64, tau_0::Number, c=LIGHT_SPEED::Real) where T <: Integer
+            delta_tau_s::Float64, tau_0::Number, c=LIGHT_SPEED::Real) where T <: Number
 
 Computes the phase ramp (phi) for the given burst number for input rows (lines) and columns (samples).
 
@@ -30,7 +30,11 @@ function phase_ramp(rows::Vector{T}, columns::Vector{T}, burst_number::Int64, v_
                     dc_tau_0::Float64, fm_coefficient::Vector{Float64},
                     fm_tau_0::Float64, f_c::Float64, lines_per_burst::Int64,
                     number_of_samples::Int64, delta_t_s::Float64,
-                    delta_tau_s::Float64, tau_0::Number, c=LIGHT_SPEED::Real) where T <: Integer
+                    delta_tau_s::Float64, tau_0::Number, c=LIGHT_SPEED::Real) where T <: Number
+
+    if length(rows) != length(columns)
+        throw(ArgumentError("Length of rows must match columns. Consider using phase_ramp_grid() for grids"))
+    end
 
     tau = tau_0 .+ (columns .- 1) .* delta_tau_s # Slant range time of ith sample, Eqn. 12
 
@@ -51,7 +55,7 @@ function phase_ramp(rows::Vector{T}, columns::Vector{T}, burst_number::Int64, v_
     doppler =  _doppler_centroid_frequency(tau, dc_coefficient, dc_tau_0)
 
     # Compute the phase ramp added with the modulation term
-    ramp = [pi * k_t[j] * (eta[i] - eta_ref[j])^2 + 2 * pi * doppler[j] * (eta[i] - eta_ref[j]) for i=1:length(rows), j=1:length(columns)];
+    ramp = pi .* k_t .* (eta .- eta_ref) .^2 .+ 2 .* pi .* doppler .* (eta .- eta_ref)
     return ramp
 end
 
@@ -62,7 +66,12 @@ end
 Extracts relevant parameters from meta_data and calls phase_ramp().
 """
 function phase_ramp(rows::Vector{T}, columns::Vector{T},
-                        burst_number::Int64, mid_burst_speed::Float64, meta_data::Sentinel1MetaData) where T <: Integer
+                        burst_number::Int64, mid_burst_speed::Float64, meta_data::Sentinel1MetaData) where T <: Number
+
+
+    if length(rows) != length(columns)
+        throw(ArgumentError("Length of rows must match columns. Consider using phase_ramp_grid() for grids"))
+    end
 
     k_psi = meta_data.product.azimuth_steering_rate * pi/180 ;
     dc_coefficient = meta_data.bursts[burst_number].doppler_centroid.polynomial;
@@ -82,6 +91,25 @@ function phase_ramp(rows::Vector{T}, columns::Vector{T},
     return ramp
 end
 
+
+"""
+phase_ramp_grid(rows::AbstractRange, columns::AbstractRange, 
+                        burst_number::Int64, mid_burst_speed::Float64, meta_data::Sentinel1MetaData)
+
+Computes the phase ramp (phi) for the given burst number over the grid defined by 
+rows::AbstractRange and columns::AbstractRange 
+"""
+function phase_ramp_grid(rows::AbstractRange, columns::AbstractRange, 
+                        burst_number::Int64, mid_burst_speed::Float64, meta_data::Sentinel1MetaData)
+    rows = collect(rows)
+    columns = collect(columns)
+
+    rows_grid = reshape(ones(length(columns))' .* rows,:)
+	columns_grid = reshape(columns' .* ones(length(rows)),:);
+
+    ramp = phase_ramp(rows_grid, columns_grid, burst_number, mid_burst_speed, meta_data);
+    return reshape(ramp,(length(rows),length(columns)))
+end
 
 function deramp(image::Sentinel1SLC, ramp::Matrix{Float64})
     image = image.data .* reshape(exp.(-ramp .* im), size(image.data));
