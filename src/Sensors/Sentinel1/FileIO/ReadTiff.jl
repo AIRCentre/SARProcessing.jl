@@ -3,27 +3,28 @@
 """
     load_tiff(filepath::String, window=nothing; convertToDouble = true,flip = true)
 
-    Read a Sentinel 1 tiff file.
-    # Examples:
-    ```jldoctest
-    julia> filepath = "s1a-iw3-slc-vv-20220918t074921-20220918t074946-045056-056232-006.tiff"
-    julia> data = readSwathSLC(filePath, [(501,600),(501,650)]);
-    julia> typeof(data)
-    Matrix{ComplexF64}
-    julia> size(data)
-    (100,150)
-    ```
+Read a Sentinel 1 tiff file.
+
+# Examples
+```
+julia> filepath = "s1a-iw3-slc-vv-20220918t074921-20220918t074946-045056-056232-006.tiff"
+julia> data = readSwathSLC(filepath, [(501,600),(501,650)]);
+julia> typeof(data)
+Matrix{ComplexF64}
+julia> size(data)
+(100,150)
+```
 """
 function load_tiff(filepath::String, window=nothing; convertToDouble = true,flip = true)
 
     dataset = ArchGDAL.readraster(filepath)
 
     if isnothing(window)
-       
+
         dataset = dataset[:,:,1]
-    
+
     else
-        
+
         if window[2][2] > ArchGDAL.width(dataset)
             @warn "The window exceeds the dataset width $(ArchGDAL.width(dataset))."
         end
@@ -32,11 +33,11 @@ function load_tiff(filepath::String, window=nothing; convertToDouble = true,flip
         end
 
         dataset = dataset[window[2][1]:window[2][2],window[1][1]:window[1][2],1]
-    
+
     end
 
     # Tiff file have flipped Width and hight compare to julia 2d Matrix
-    if flip 
+    if flip
         # Flip array dimensions so index 1 is approximately latitude direction and index 2 longitude
         dataset = permutedims(dataset, (2, 1));
     end
@@ -52,5 +53,3 @@ function load_tiff(filepath::String, window=nothing; convertToDouble = true,flip
 
     return dataset
 end
-
-

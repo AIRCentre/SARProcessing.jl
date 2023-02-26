@@ -61,6 +61,44 @@ function _doppler_centroid_frequency_test()
     return polynomial_test(SARProcessing._doppler_centroid_frequency, range_time, dc_meta.polynomial, dc_meta.t0)
 end
 
+function phase_ramp_grid_test()
+    ## Arrange
+    # load image
+    image = load_test_slc_image();
+    meta_data = image.metadata;
+    burst_number = SARProcessing.get_burst_numbers(image)[1]
+
+    # get range times from columns/samples
+    orbit_states = SARProcessing.load_precise_orbit_sentinel1(PRECISE_ORBIT_TEST_FILE2)
+
+    # ## Get mid burst time and speed
+    interpolator = SARProcessing.orbit_state_interpolator(orbit_states, image)
+    mid_burst_state = SARProcessing.get_burst_mid_states(image, interpolator)
+    mid_burst_speed = SARProcessing.get_speed.(mid_burst_state)[burst_number]
+
+    # Create some matrices of row and column indices
+    image_window = SARProcessing.get_window(image)
+    columns = image_window[2][1]:image_window[2][2]
+    rows = image_window[1][1]:image_window[1][2]
+
+    ## Act
+    ramp = SARProcessing.phase_ramp_grid(rows, columns, burst_number, mid_burst_speed, meta_data);
+
+    ## Assert
+    # check if output is real
+    output_type = eltype(ramp);
+    check_real = output_type <: Real
+
+    #check size 
+    check_size = size(ramp) == size(image.data)
+
+    # check that the ramp is not all zeros
+    check_non_zero = sum(ramp .!= 0) != 0;
+
+    test_ok = all([check_real, check_non_zero, check_size])
+    return test_ok
+end
+
 function phase_ramp_test()
     ## Arrange
     # load image
@@ -74,12 +112,11 @@ function phase_ramp_test()
     # ## Get mid burst time and speed
     interpolator = SARProcessing.orbit_state_interpolator(orbit_states, image)
     mid_burst_state = SARProcessing.get_burst_mid_states(image, interpolator)
-    mid_burst_speed = SARProcessing.get_speed.(mid_burst_state)[1]
+    mid_burst_speed = SARProcessing.get_speed.(mid_burst_state)[burst_number]
 
-    # Create some matrices of row and colomn indeces
-    image_window = SARProcessing.get_window(image)
-    columns = collect(image_window[2][1]:image_window[2][2])
-    rows = collect(image_window[1][1]:image_window[1][2])
+    # Create some matrices of row and column indices
+    columns = collect(11:15)
+    rows = collect(10:-2:1)
 
     ## Act
     ramp = SARProcessing.phase_ramp(rows, columns, burst_number, mid_burst_speed, meta_data);
@@ -89,10 +126,13 @@ function phase_ramp_test()
     output_type = eltype(ramp);
     check_real = output_type <: Real
 
+    # check size
+    check_size = length(ramp) == 5
+
     # check that the ramp is not all zeros
     check_non_zero = sum(ramp .!= 0) != 0;
 
-    test_ok = all([check_real, check_non_zero])
+    test_ok = all([check_real, check_non_zero, check_size])
     return test_ok
 end
 
@@ -109,15 +149,15 @@ function deramp_test()
     # ## Get mid burst time and speed
     interpolator = SARProcessing.orbit_state_interpolator(orbit_states, image)
     mid_burst_state = SARProcessing.get_burst_mid_states(image,interpolator)
-    mid_burst_speed = SARProcessing.get_speed.(mid_burst_state)[1]
+    mid_burst_speed = SARProcessing.get_speed.(mid_burst_state)[burst_number]
 
     # Create some matrices of row and colomn indeces
     image_window = SARProcessing.get_window(image)
-    columns = collect(image_window[2][1]:image_window[2][2])
-    rows = collect(image_window[1][1]:image_window[1][2])
+    columns = image_window[2][1]:image_window[2][2]
+    rows = image_window[1][1]:image_window[1][2]
 
     ## Act 
-    ramp = SARProcessing.phase_ramp(rows, columns, burst_number[1], mid_burst_speed, meta_data);
+    ramp = SARProcessing.phase_ramp_grid(rows, columns, burst_number[1], mid_burst_speed, meta_data);
     deramped_image = SARProcessing.deramp(image, ramp)
 
     ## Assert
@@ -144,14 +184,14 @@ function reramp_test()
     # ## Get mid burst time and speed
     interpolator = SARProcessing.orbit_state_interpolator(orbit_states, image)
     mid_burst_state = SARProcessing.get_burst_mid_states(image,interpolator)
-    mid_burst_speed = SARProcessing.get_speed.(mid_burst_state)[1]
+    mid_burst_speed = SARProcessing.get_speed.(mid_burst_state)[burst_number]
 
-    # Create some matrices of row and colomn indeces
+    # Create some matrices of row and column indices
     image_window = SARProcessing.get_window(image)
-    columns = collect(image_window[2][1]:image_window[2][2])
-    rows = collect(image_window[1][1]:image_window[1][2])
+    columns = image_window[2][1]:image_window[2][2]
+    rows = image_window[1][1]:image_window[1][2]
 
-    ramp = SARProcessing.phase_ramp(rows, columns, burst_number[1], mid_burst_speed, meta_data);
+    ramp = SARProcessing.phase_ramp_grid(rows, columns, burst_number[1], mid_burst_speed, meta_data);
 
     ## Act
     reramped_image = SARProcessing.reramp(image, ramp)
@@ -170,6 +210,7 @@ end
 @testset "InSARTest.jl" begin
     @test _doppler_centroid_frequency_test()
     @test _doppler_fm_rate_test()
+    @test phase_ramp_grid_test()
     @test phase_ramp_test()
     @test deramp_test()
     @test reramp_test()

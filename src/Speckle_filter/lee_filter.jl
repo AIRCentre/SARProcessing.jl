@@ -16,7 +16,7 @@ despeckled pixel value
 
 """
 function _speckle_lee_filter_pixel(subset_image::Matrix{T},full_image_variance::T)where T<: Real
-    
+
     #value of center pixel
     center_pixel_row,center_pixel_columns = size(subset_image).÷2
     center_pixel = subset_image[center_pixel_row,center_pixel_columns]
@@ -29,23 +29,22 @@ function _speckle_lee_filter_pixel(subset_image::Matrix{T},full_image_variance::
     return despeckled_pixel
 end
 
-@doc """
-    
-    original speckle lee filter for SAR images, see 'Refined Filtering of Image Noise Using Local Statistics' (1980)
-    The Lee filter is an adaptive filter in the sence that it used the local statistics to determine the amount of speckle filtering.
-    In homogenous region, it will resemble a mean filter. In inhomogenous region, i.e., near cities or edges, it will do less filtering.
+"""
+    speckle_lee_filter(image::Matrix{T} where T<: Real ,filter_size::Vector{N} where N<:Integer =[3,3])::Matrix{Real}
+
+Original speckle lee filter for SAR images, see 'Refined Filtering of Image Noise Using Local Statistics' (1980)
+The Lee filter is an adaptive filter in the sence that it used the local statistics to determine the amount of speckle filtering.
+In homogenous region, it will resemble a mean filter. In inhomogenous region, i.e., near cities or edges, it will do less filtering.
 
 ## Inputs
-    image::Matrix, Speckled input iamge. 2D matrix.
-
-    filter_size::[integer,integer]. Filter size of speckle filter
+- `image::Matrix`, Speckled input iamge. 2D matrix.
+- `filter_size::[integer,integer]`, Filter size of speckle filter
 
 ## Outputs
-    despeckled_image::Matrix, despeckled image
+- `despeckled_image::Matrix`, despeckled image
 
-## examples
+## Examples
     descpeckled_image = SARProcessing.speckle_lee_filter(speckle_image,[9,9]);
-
     descpeckled_image = SARProcessing.speckle_lee_filter(speckle_image,[3,3]);
 """
 function speckle_lee_filter(image::Matrix{T} where T<: Real ,filter_size::Vector{N} where N<:Integer =[3,3])::Matrix{Real}
@@ -54,7 +53,7 @@ function speckle_lee_filter(image::Matrix{T} where T<: Real ,filter_size::Vector
     @assert iseven(filter_size[2]) !=true  "Filter width must be uneven, is $(filter_size[2])."
     @assert size(image)[1]>=filter_size[1]  "Image must be larger than filter. Image height $(size(image)[1]) filter height $(filter_size[1])"
     @assert size(image)[2]>=filter_size[2]  "Image must be larger than filter. Image width $(size(image)[2]) filter width $(filter_size[2])"
-    
+
     im_rows,im_columns = size(image)
     despeckled_image = zeros(im_rows-(filter_size[1]-1),im_columns-(filter_size[2]-1)) #÷2
     full_image_variance = std(image)^2
@@ -62,10 +61,6 @@ function speckle_lee_filter(image::Matrix{T} where T<: Real ,filter_size::Vector
         for j in 1:im_columns-filter_size[2]+1
             despeckled_image[i,j] = _speckle_lee_filter_pixel(image[i:i+filter_size[1]-1,j:j+filter_size[2]-1],full_image_variance)
         end
-    end    
+    end
     return despeckled_image
 end
-
-
-
-

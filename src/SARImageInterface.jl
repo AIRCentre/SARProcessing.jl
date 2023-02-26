@@ -36,14 +36,13 @@ function is_deramped(image::T) where T <: SingleLookComplex
 end
 
 """
-get_burst_mid_times(image::T) where T <: SingleLookComplex
+    get_burst_mid_times(image::T) where T <: SingleLookComplex
 
-    Returns a vector of the mid burst times for the burst in the image. 
-    Only bursts included in the image view are included
+Returns a vector of the mid burst times for the burst in the full image
 """
 function get_burst_mid_times(image::T) where T <: SingleLookComplex
     throw(ErrorException("get_burst_mid_times(image::T)   must be implemented for all SingleLookComplex types. Type: $T"))
-end 
+end
 
 
 #abstract type ComplexBurst <: SARImage end
@@ -83,8 +82,3 @@ end
 function get_incidence_angle_mid_degrees(meta_data::T) where T <: MetaData
     throw(ErrorException("get_reference_time(image::T) must be implemented for all MetaData types. Type: $T"))
 end
-
-
-
-
-

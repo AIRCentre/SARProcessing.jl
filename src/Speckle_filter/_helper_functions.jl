@@ -22,15 +22,10 @@ function equivalent_number_of_looks_amplitude(image_window)
 end
 
 
-@doc """
-
-in the homogeneous areas, the ratio of the standard deviation to the mean is a good measure of speckle strength. 
+"""
+In the homogeneous areas, the ratio of the standard deviation to the mean is a good measure of speckle strength.
 For the filtered SAR images, this ratio is also frequently used to measure the amount of speckle reduction.
-
 """
 function speckle_index_ratio(image_window)
     return sqrt(Statistics.std(image_window)^2)/Statistics.mean(image_window)
 end
-
-
-
