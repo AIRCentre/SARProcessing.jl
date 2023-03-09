@@ -16,7 +16,7 @@ _doppler_centroid_frequency(x, dc_param, x0) = dc_param[1] .+ dc_param[2].*(x .-
             dc_tau_0::Float64, fm_coefficient::Vector{Float64},
             fm_tau_0::Float64, f_c::Float64, lines_per_burst::Int64,
             number_of_samples::Int64, delta_t_s::Float64,
-            delta_tau_s::Float64, tau_0::Number, c=LIGHT_SPEED::Real) where T <: Number
+            delta_tau_s::Float64, tau_0::Real, c=LIGHT_SPEED::Real) where T <: Real
 
 Computes the phase ramp (phi) for the given burst number for input rows (lines) and columns (samples).
 
@@ -30,7 +30,7 @@ function phase_ramp(rows::Vector{T}, columns::Vector{T}, burst_number::Int64, v_
                     dc_tau_0::Float64, fm_coefficient::Vector{Float64},
                     fm_tau_0::Float64, f_c::Float64, lines_per_burst::Int64,
                     number_of_samples::Int64, delta_t_s::Float64,
-                    delta_tau_s::Float64, tau_0::Number, c=LIGHT_SPEED::Real) where T <: Number
+                    delta_tau_s::Float64, tau_0::Real, c=LIGHT_SPEED::Real) where T <: Real
 
     if length(rows) != length(columns)
         throw(ArgumentError("Length of rows must match columns. Consider using phase_ramp_grid() for grids"))
@@ -66,7 +66,7 @@ end
 Extracts relevant parameters from meta_data and calls phase_ramp().
 """
 function phase_ramp(rows::Vector{T}, columns::Vector{T},
-                        burst_number::Int64, mid_burst_speed::Float64, meta_data::Sentinel1MetaData) where T <: Number
+                        burst_number::Int64, mid_burst_speed::Float64, meta_data::Sentinel1MetaData) where T <: Real
 
 
     if length(rows) != length(columns)
