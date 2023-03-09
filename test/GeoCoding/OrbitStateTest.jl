@@ -114,7 +114,8 @@ function interpolation_with_image_test()
 
     ## Assert
     mid_burst_state = SARProcessing.get_burst_mid_states(image,interpolator)
-    speed = SARProcessing.get_speed.(mid_burst_state)
+    burst_number =SARProcessing.get_burst_numbers(image)
+    speed = SARProcessing.get_speed.(mid_burst_state)[first(burst_number)]
 
     testOk = length(speed) == 1  # test image subset only covers one swath
     testOk &= isapprox(7500,speed[1],rtol = 0.1)  #satellite speed is around 7.5 km/s

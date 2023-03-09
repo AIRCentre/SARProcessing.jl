@@ -47,7 +47,5 @@ end
 
 function get_burst_mid_times(image::Sentinel1SLC)
     mid_times = get_burst_mid_times(image.metadata)
-    burst_numbers = get_burst_numbers(image)
-
-    return mid_times[burst_numbers]
+    return mid_times
 end
