@@ -1,6 +1,6 @@
 
 function _parse_orbit_state_sentinel1(xml_element) # Helper function
-    time = Dates.DateTime(xml_element["UTC"][5:27], "yyyy-mm-ddTHH:MM:SS.sss")
+    time = TimesDates.TimeDate(xml_element["UTC"][5:end])
 
     x = parse(Float64, xml_element["X"][""])
     y = parse(Float64, xml_element["Y"][""])

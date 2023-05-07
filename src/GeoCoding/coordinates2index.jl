@@ -82,7 +82,7 @@ end
 #TODO A faster way would probably be to project the line of sight component in the v direction (dx_v)
 # and then change the time with dx_v/v until the time steps gets small enough,
 function find_zero_doppler_time(ecef_coordinate::Array{T,1}, time_range , interpolator;
-    tolerance_in_seconds::Real = 1e-6) where T <: Real
+    tolerance_in_seconds::Period = Nanosecond(100)) where T <: Real
 
     # Use float seconds for sub millisecond accuracy
     search_interval_start = time_range[1]
@@ -94,10 +94,14 @@ function find_zero_doppler_time(ecef_coordinate::Array{T,1}, time_range , interp
     is_in_image = is_coordinate_in_time_range(ecef_coordinate, time_range , interpolator)
     @assert is_in_image "ecef_coordinate is not in image"
 
-    local time_i::Float64
+    local time_i
 
     for _ = 1:number_of_steps
-        time_i = (search_interval_end + search_interval_start) / 2
+
+        time_difference = Nanosecond(search_interval_end - search_interval_start)
+        time_difference += time_difference % 2 ==  Nanosecond(0) ?  Nanosecond(0) :  Nanosecond(1)
+        
+        time_i = search_interval_start + time_difference / 2
 
         sin_squint_angle = _get_sin_squint_angle(ecef_coordinate, time_i , interpolator)
 
@@ -111,7 +115,7 @@ function find_zero_doppler_time(ecef_coordinate::Array{T,1}, time_range , interp
     return time_i
 end
 
-function _get_sin_squint_angle(ecef_coordinate::Array{T,1}, t_0::Real, interpolator) where T <: Real
+function _get_sin_squint_angle(ecef_coordinate::Array{T,1}, t_0::S, interpolator) where {T <: Real,S <: Union{DateTime,TimesDates.TimeDate}}
     state_vector = interpolator(t_0)
     line_of_sight = ecef_coordinate .- state_vector.position
 

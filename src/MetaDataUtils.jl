@@ -10,9 +10,9 @@ function get_image_duration_seconds(meta_data::MetaData)::Float64
 end
 
 
-azimuth_time2row(azimuth_time::Real,azimuth_frequency,start_time) =  1 + (azimuth_time-start_time) * azimuth_frequency
+azimuth_time2row(azimuth_time::T ,azimuth_frequency,start_time) where T <: Union{DateTime,TimesDates.TimeDate} =  1 + period_to_float_seconds(azimuth_time-start_time) * azimuth_frequency
 
-row2azimuth_time(row_from_first_burst::Real,azimuth_frequency,start_time) = start_time + (row_from_first_burst-1)/azimuth_frequency
+row2azimuth_time(row_from_first_burst::Real,azimuth_frequency,start_time) = start_time + float_seconds_to_period((row_from_first_burst-1)/azimuth_frequency )
 
 """
     azimuth_time2row(azimuth_time::Real,metadata::MetaData)
@@ -22,7 +22,7 @@ Returns the row corresponding to a specific azimuth time.
 Note: That the burst overlap is not considered in this function.
 The actual image row will thus differ.
 """
-function azimuth_time2row(azimuth_time::Real,metadata::MetaData)
+function azimuth_time2row(azimuth_time::T,metadata::MetaData) where T <: Union{DateTime,TimesDates.TimeDate}
     azimuth_frequency = get_azimuth_frequency(metadata)
     time_range = get_time_range(metadata)
     return azimuth_time2row(azimuth_time::Real,azimuth_frequency,time_range[1])

@@ -6,17 +6,6 @@ include("MetadataUtil.jl")
 ##################### Constructors  ##################
 ######## Constructors for all the structures ########
 ######################################################
-function get_reference_time(meta_dict)::DateTime
-    start_time = meta_dict["product"]["adsHeader"]["startTime"]
-    reference_time = DateTime(start_time[1:19])
-    return reference_time
-end
-
-function parse_delta_time(time_string::String,reference_time::DateTime)
-    milliseconds = Dates.value( DateTime(time_string[1:23]) - reference_time)
-    microseconds = parse(Int, time_string[24:26])
-    return milliseconds /1000.0 + microseconds*  10^-6
-end
 
 """"
     Sentinel1Header
@@ -42,7 +31,7 @@ It takes a dictionary containing the full sentinel-1 swath metadata and extracts
 - `Sentinel1Header[structure of Sentinel1Header]`
 
 """
-function Sentinel1Header(meta_dict, reference_time::DateTime)::Sentinel1Header
+function Sentinel1Header(meta_dict)::Sentinel1Header
     missionId = meta_dict["product"]["adsHeader"]["missionId"]
     productType = meta_dict["product"]["adsHeader"]["productType"]
     polarisation = meta_dict["product"]["adsHeader"]["polarisation"]
@@ -55,10 +44,10 @@ function Sentinel1Header(meta_dict, reference_time::DateTime)::Sentinel1Header
     image_number = meta_dict["product"]["adsHeader"]["imageNumber"]
 
     polarisation = parse(Polarisation,polarisation)
-    stop_time = parse_delta_time(stop_time,reference_time)
+    stop_time = TimesDates.TimeDate(stop_time)
     mission_data_take_id = parse(Int, mission_data_take_id)
     swath = parse(Int, swath[end])
-    start_time = parse_delta_time(start_time,reference_time)
+    start_time = TimesDates.TimeDate(start_time)
     absolute_orbit_number = parse(Int, absolute_orbit_number)
 
 
@@ -223,14 +212,14 @@ It takes a dictionary containing the full sentinel-1 swath metadata and extracts
 - `Sentinel1GeolocationGrid[structure of Sentinel1GeolocationGrid]`
 
 """
-function Sentinel1GeolocationGrid(meta_dict,reference_time::DateTime )::Sentinel1GeolocationGrid
+function Sentinel1GeolocationGrid(meta_dict )::Sentinel1GeolocationGrid
     geolocation = meta_dict["product"]["geolocationGrid"]["geolocationGridPointList"]["geolocationGridPoint"]
 
     lines = [parse(Int, elem["line"]) for elem in geolocation] .+ 1
     samples = [parse(Int, elem["pixel"]) for elem in geolocation] .+ 1
     latitude = [parse(Float64, elem["latitude"]) for elem in geolocation]
     longitude = [parse(Float64, elem["longitude"]) for elem in geolocation]
-    azimuth_time = [parse_delta_time(elem["azimuthTime"],reference_time) for elem in geolocation]
+    azimuth_time = [TimesDates.TimeDate(elem["azimuthTime"]) for elem in geolocation]
     slant_range_time_seconds = [parse(Float64, elem["slantRangeTime"]) for elem in geolocation]
     elevation_angle = [parse(Float64, elem["elevationAngle"]) for elem in geolocation]
     incidence_angle = [parse(Float64, elem["incidenceAngle"]) for elem in geolocation]
@@ -264,11 +253,11 @@ It takes a dictionary containing the full sentinel-1 swath metadata and extracts
 # Output
 - `Sentinel1BurstInformation[structure of Sentinel1BurstInformation]`
 """
-function Sentinel1BurstInformation(meta_dict,burst_number::Int, reference_time::DateTime)::Sentinel1BurstInformation
+function Sentinel1BurstInformation(meta_dict,burst_number::Int)::Sentinel1BurstInformation
     burst = meta_dict["product"]["swathTiming"]["burstList"]["burst"][burst_number]
 
-    azimuth_time = parse_delta_time(burst["azimuthTime"],reference_time)
-    sensing_time = parse_delta_time(burst["sensingTime"],reference_time)
+    azimuth_time = TimesDates.TimeDate(burst["azimuthTime"])
+    sensing_time = TimesDates.TimeDate(burst["sensingTime"])
     azimuth_anx_time = parse(Float64, burst["azimuthAnxTime"])
     byte_offset = parse.(Int,burst["byteOffset"])
     first_valid_sample = parse.(Int,split(burst["firstValidSample"][""]))
@@ -286,17 +275,19 @@ function Sentinel1BurstInformation(meta_dict,burst_number::Int, reference_time::
     lines_per_burst  = Sentinel1SwathTiming(meta_dict).lines_per_burst
     azimuth_frequency = Sentinel1ImageInformation(meta_dict).azimuth_frequency
 
-    half_burst_period = lines_per_burst / (2 * azimuth_frequency )
+    half_burst_period = float_seconds_to_period(lines_per_burst / (2 * azimuth_frequency ))
     burst_mid_time = half_burst_period + azimuth_time
 
 
-    doppler_centroid = Sentinel1DopplerCentroid(meta_dict,burst_mid_time,reference_time)
+    doppler_centroid = read_polynomial_for_burst(
+        meta_dict["product"]["dopplerCentroid"]["dcEstimateList"]["dcEstimate"],
+        "dataDcPolynomial",
+        burst_mid_time)
 
-    #Sentinel1AzimuthFmRate for burst
-
-    azimuth_fm_rate = Sentinel1AzimuthFmRate(meta_dict,burst_mid_time,reference_time)
-
-
+    azimuth_fm_rate = read_polynomial_for_burst(
+        meta_dict["product"]["generalAnnotation"]["azimuthFmRateList"]["azimuthFmRate"],
+        "azimuthFmRatePolynomial",
+        burst_mid_time)
 
     burst = Sentinel1BurstInformation(burst_number,
                         azimuth_time,
@@ -315,71 +306,28 @@ end
 
 
 
-
 """"
-    Sentinel1DopplerCentroid
+    read_polynomial_for_burst(polynomial_dict::Dict, polynomial_key::String,burst_mid_time::TimesDates.TimeDate)::Sentinel1Polynomial
 
-Constructors for the Sentinel1DopplerCentroid structure.
-
-It takes a dictionary containing the full sentinel-1 swath metadata and extracts the Sentinel1DopplerCentroid data for a single burst as a structure.
-
-# Note
-- [ ] Perhaps change input vars from strutures to the specific values. -- Does the current implementaion use extra time?
-- [ ] What is needed? Maybe, e.g., polynomial is redudant in the later processing. Could be deleted.
 """
-function Sentinel1DopplerCentroid(meta_dict,
-                        burst_mid_time::Float64, reference_time::DateTime)::Sentinel1DopplerCentroid
-    doppler_centroids = meta_dict["product"]["dopplerCentroid"]["dcEstimateList"]["dcEstimate"]
+function read_polynomial_for_burst(polynomial_dict::AbstractVector, polynomial_key::String,
+                        burst_mid_time::TimesDates.TimeDate)::Sentinel1Polynomial
 
-
-    dc_time_differences = [ abs.(parse_delta_time(centroid["azimuthTime"],reference_time) -burst_mid_time ) for centroid in doppler_centroids]
+    dc_time_differences = [ abs.(TimesDates.TimeDate(elem["azimuthTime"]) -burst_mid_time ) for elem in polynomial_dict]
     best_index = argmin(dc_time_differences)
 
-    polynomial = [parse(Float64, param) for param in split(doppler_centroids[best_index]["dataDcPolynomial"][""])]
-    t0 = parse(Float64, doppler_centroids[best_index]["t0"])
+    polynomial = [parse(Float64, param) for param in split(polynomial_dict[best_index][polynomial_key][""])]
+    t0 = parse(Float64, polynomial_dict[best_index]["t0"])
 
-    doppler_centroid = Sentinel1DopplerCentroid(
-                                        polynomial,
-                                        t0)
-    return doppler_centroid
-end
-
-
-""""
-    Sentinel1AzimuthFmRate
-
-Constructors for the Sentinel1AzimuthFmRate structure.
-
-It takes a dictionary containing the full sentinel-1 swath metadata and extracts the Sentinel1AzimuthFmRate data for a single burst as a structure.
-
-# Note
-- [ ] Perhaps change input vars from strutures to the specific values. -- Does the current implementaion use extra time?
-- [ ] What is needed? Maybe, e.g., polynomial is redudant in the later processing. Could then be deleted.
-
-"""
-function Sentinel1AzimuthFmRate(meta_dict,
-        burst_mid_time::Float64, reference_time::DateTime)::Sentinel1AzimuthFmRate
-    azimuthFmRateList = meta_dict["product"]["generalAnnotation"]["azimuthFmRateList"]["azimuthFmRate"]
-
-    fm_times_diff = [abs.(parse_delta_time(azimuthFmRate["azimuthTime"],reference_time)-burst_mid_time) for azimuthFmRate in azimuthFmRateList]
-    best_index = argmin(fm_times_diff)
-
-    polynomial = [parse(Float64, param) for param in split(azimuthFmRateList[best_index]["azimuthFmRatePolynomial"][""])]
-    t0 = parse(Float64, azimuthFmRateList[best_index]["t0"])
-
-    azimuth_fm_rate = Sentinel1AzimuthFmRate(
-                                polynomial,
-                                t0,
-                                )
-    return azimuth_fm_rate
+    sentinel1_polynomial = Sentinel1Polynomial(polynomial,t0)
+    return sentinel1_polynomial
 end
 
 
 
-
-function get_sentinel1_burst_information(meta_dict, reference_time::DateTime)
+function get_sentinel1_burst_information(meta_dict)
     number_of_burst = size(meta_dict["product"]["swathTiming"]["burstList"]["burst"])[1]
-    return [Sentinel1BurstInformation(meta_dict,number,reference_time) for number in 1:1:number_of_burst ]
+    return [Sentinel1BurstInformation(meta_dict,number) for number in 1:1:number_of_burst ]
 end
 
 
@@ -412,15 +360,14 @@ function Sentinel1MetaData(xmlFile::String)::Sentinel1MetaData
 
     meta_dict = read_xml_as_dict(xmlFile)
 
-    reference_time = get_reference_time(meta_dict)
 
-    metadata = Sentinel1MetaData(reference_time,
-                        Sentinel1Header(meta_dict,reference_time),
+    metadata = Sentinel1MetaData(
+                        Sentinel1Header(meta_dict),
                         Sentinel1ProductInformation(meta_dict),
                         Sentinel1ImageInformation(meta_dict),
                         Sentinel1SwathTiming(meta_dict),
-                        get_sentinel1_burst_information(meta_dict,reference_time),
-                        Sentinel1GeolocationGrid(meta_dict,reference_time)
+                        get_sentinel1_burst_information(meta_dict),
+                        Sentinel1GeolocationGrid(meta_dict)
                         )
 
     return metadata

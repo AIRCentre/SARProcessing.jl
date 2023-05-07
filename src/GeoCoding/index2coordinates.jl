@@ -36,11 +36,11 @@ function sar_index2geodetic(row_from_first_burst::Real,
      image_column::Real,
      height::Real,
      interpolator,
-     t_start::Real,
+     t_start::T,
      incidence_angle_mid::Real,
      range_pixel_spacing::Real,
      azimuth_frequency::Real,
-     near_range::Real)
+     near_range::Real) where T <: Union{DateTime,TimesDates.TimeDate}
 
     time = row2azimuth_time(row_from_first_burst,azimuth_frequency,t_start)
     range = column2range(image_column,range_pixel_spacing,near_range)
