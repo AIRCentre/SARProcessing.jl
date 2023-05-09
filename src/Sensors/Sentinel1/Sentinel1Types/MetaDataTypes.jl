@@ -201,7 +201,7 @@ end
 function get_burst_row_offset(meta_data::Sentinel1MetaData)
     azimuth_frequency = get_azimuth_frequency(meta_data)
     bursts_start_times = get_burst_start_times(meta_data)
-    time_delta_bursts = period_to_float_seconds(bursts_start_times .- meta_data.header.start_time)
+    time_delta_bursts = period_to_float_seconds.(bursts_start_times .- meta_data.header.start_time)
     burst_row_offset = time_delta_bursts.* azimuth_frequency
     return burst_row_offset
 end
