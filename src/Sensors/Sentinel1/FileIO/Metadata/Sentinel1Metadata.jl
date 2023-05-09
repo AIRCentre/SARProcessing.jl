@@ -31,7 +31,7 @@ It takes a dictionary containing the full sentinel-1 swath metadata and extracts
 - `Sentinel1Header[structure of Sentinel1Header]`
 
 """
-function Sentinel1Header(meta_dict)::Sentinel1Header
+function Sentinel1Header(meta_dict::AbstractDict)::Sentinel1Header
     missionId = meta_dict["product"]["adsHeader"]["missionId"]
     productType = meta_dict["product"]["adsHeader"]["productType"]
     polarisation = meta_dict["product"]["adsHeader"]["polarisation"]
@@ -85,7 +85,7 @@ It takes a dictionary containing the full sentinel-1 swath metadata and extracts
 # Output
 - `Sentinel1ProductInformation[structure of Sentinel1ProductInformation]`
 """
-function Sentinel1ProductInformation(meta_dict)::Sentinel1ProductInformation
+function Sentinel1ProductInformation(meta_dict::AbstractDict)::Sentinel1ProductInformation
     pass = meta_dict["product"]["generalAnnotation"]["productInformation"]["pass"]
     timeliness_category = meta_dict["product"]["generalAnnotation"]["productInformation"]["timelinessCategory"]
     platform_heading = meta_dict["product"]["generalAnnotation"]["productInformation"]["platformHeading"]
@@ -130,7 +130,7 @@ It takes a dictionary containing the full sentinel-1 swath metadata and extracts
 # Output
 - `Sentinel1ImageInformation[structure of Sentinel1ImageInformation]`
 """
-function Sentinel1ImageInformation(meta_dict)::Sentinel1ImageInformation
+function Sentinel1ImageInformation(meta_dict::AbstractDict)::Sentinel1ImageInformation
     image_informations = meta_dict["product"]["imageAnnotation"]["imageInformation"]
 
     range_pixel_spacing = parse(Float64, image_informations["rangePixelSpacing"])
@@ -165,7 +165,7 @@ It takes a dictionary containing the full sentinel-1 swath metadata and extracts
 # Output
 - `Sentinel1SwathTiming[structure of Sentinel1SwathTiming]`
 """
-function Sentinel1SwathTiming(meta_dict)::Sentinel1SwathTiming
+function Sentinel1SwathTiming(meta_dict::AbstractDict)::Sentinel1SwathTiming
     swath_timing = meta_dict["product"]["swathTiming"]
 
     lines_per_burst = parse(Int, swath_timing["linesPerBurst"])
@@ -212,7 +212,7 @@ It takes a dictionary containing the full sentinel-1 swath metadata and extracts
 - `Sentinel1GeolocationGrid[structure of Sentinel1GeolocationGrid]`
 
 """
-function Sentinel1GeolocationGrid(meta_dict )::Sentinel1GeolocationGrid
+function Sentinel1GeolocationGrid(meta_dict::AbstractDict)::Sentinel1GeolocationGrid
     geolocation = meta_dict["product"]["geolocationGrid"]["geolocationGridPointList"]["geolocationGridPoint"]
 
     lines = [parse(Int, elem["line"]) for elem in geolocation] .+ 1
@@ -253,7 +253,7 @@ It takes a dictionary containing the full sentinel-1 swath metadata and extracts
 # Output
 - `Sentinel1BurstInformation[structure of Sentinel1BurstInformation]`
 """
-function Sentinel1BurstInformation(meta_dict,burst_number::Int)::Sentinel1BurstInformation
+function Sentinel1BurstInformation(meta_dict::AbstractDict,burst_number::Int)::Sentinel1BurstInformation
     burst = meta_dict["product"]["swathTiming"]["burstList"]["burst"][burst_number]
 
     azimuth_time = TimesDates.TimeDate(burst["azimuthTime"])
@@ -279,12 +279,12 @@ function Sentinel1BurstInformation(meta_dict,burst_number::Int)::Sentinel1BurstI
     burst_mid_time = half_burst_period + azimuth_time
 
 
-    doppler_centroid = read_polynomial_for_burst(
+    doppler_centroid = _read_polynomial_for_burst(
         meta_dict["product"]["dopplerCentroid"]["dcEstimateList"]["dcEstimate"],
         "dataDcPolynomial",
         burst_mid_time)
 
-    azimuth_fm_rate = read_polynomial_for_burst(
+    azimuth_fm_rate = _read_polynomial_for_burst(
         meta_dict["product"]["generalAnnotation"]["azimuthFmRateList"]["azimuthFmRate"],
         "azimuthFmRatePolynomial",
         burst_mid_time)
@@ -305,12 +305,8 @@ function Sentinel1BurstInformation(meta_dict,burst_number::Int)::Sentinel1BurstI
 end
 
 
-
-""""
-    read_polynomial_for_burst(polynomial_dict::Dict, polynomial_key::String,burst_mid_time::TimesDates.TimeDate)::Sentinel1Polynomial
-
-"""
-function read_polynomial_for_burst(polynomial_dict::AbstractVector, polynomial_key::String,
+# Helper function to read doppler_centroid and azimuth_fm_rate polynomials
+function _read_polynomial_for_burst(polynomial_dict::Vector, polynomial_key::String,
                         burst_mid_time::TimesDates.TimeDate)::Sentinel1Polynomial
 
     dc_time_differences = [ abs.(TimesDates.TimeDate(elem["azimuthTime"]) -burst_mid_time ) for elem in polynomial_dict]
@@ -324,8 +320,12 @@ function read_polynomial_for_burst(polynomial_dict::AbstractVector, polynomial_k
 end
 
 
+""""
+    read_sentinel1_burst_information(meta_dict::AbstractDict)::Vector{Sentinel1BurstInformation}
 
-function get_sentinel1_burst_information(meta_dict)
+Read all burst information from meta_dict.
+"""
+function read_sentinel1_burst_information(meta_dict::AbstractDict)::Vector{Sentinel1BurstInformation}
     number_of_burst = size(meta_dict["product"]["swathTiming"]["burstList"]["burst"])[1]
     return [Sentinel1BurstInformation(meta_dict,number) for number in 1:1:number_of_burst ]
 end
@@ -366,7 +366,7 @@ function Sentinel1MetaData(xmlFile::String)::Sentinel1MetaData
                         Sentinel1ProductInformation(meta_dict),
                         Sentinel1ImageInformation(meta_dict),
                         Sentinel1SwathTiming(meta_dict),
-                        get_sentinel1_burst_information(meta_dict),
+                        read_sentinel1_burst_information(meta_dict),
                         Sentinel1GeolocationGrid(meta_dict)
                         )
 

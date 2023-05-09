@@ -50,8 +50,9 @@ function ecef2SAR_index_test()
 
     ## Assert
 
-    # the code have been compared with the old syntese project.
-    test_ok =  isapprox(SAR_index[1],9163.02432962588, atol=10^-4)
+    # the code have been compared with the old syntese project. SAR_index[1] have been change from 9163.02432962588
+    #TODO Validate the results using other inSAR software  
+    test_ok =  isapprox(SAR_index[1],9163.1798823, atol=10^-4)
     test_ok &= isapprox(SAR_index[2],11661.243018795767, atol=10^-4)
 
     

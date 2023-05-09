@@ -152,7 +152,7 @@ end
 function sentinel1_burst_test()
     #Action
     meta_dict = SARProcessing.read_xml_as_dict(SENTINEL1_SLC_METADATA_TEST_FILE)
-    bursts = SARProcessing.get_sentinel1_burst_information(meta_dict);
+    bursts = SARProcessing.read_sentinel1_burst_information(meta_dict);
 
     ## Assert
     check = length(bursts) == 9
