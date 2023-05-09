@@ -88,8 +88,11 @@ function find_zero_doppler_time(ecef_coordinate::Array{T,1}, time_range , interp
     search_interval_start = time_range[1]
     search_interval_end = time_range[2]
 
+    
+    interval_nanoseconds = Nanosecond(search_interval_end-search_interval_start).value
+    tolerance_nanoseconds = Nanosecond(tolerance_in_seconds).value
     # The search interval is halved every step
-    number_of_steps = log2((search_interval_end-search_interval_start)/tolerance_in_seconds)
+    number_of_steps = ceil(Int,log2(interval_nanoseconds/tolerance_nanoseconds))
 
     is_in_image = is_coordinate_in_time_range(ecef_coordinate, time_range , interpolator)
     @assert is_in_image "ecef_coordinate is not in image"

@@ -3,7 +3,7 @@
 function find_zero_doppler_time_test() 
     ## Arrange
     ecef_coordinate = [5000, 0, 0]
-    start_time = DateTime("2022-10-29T23:06:12")
+    start_time = TimesDates.TimeDate("2022-10-29T23:06:12")
 
     test_interpolator = t -> 
         begin
@@ -23,10 +23,10 @@ function find_zero_doppler_time_test()
 
     ## Act
     zero_doppler_time = SARProcessing.find_zero_doppler_time(ecef_coordinate, [start_time,start_time + Second(4)] , 
-        test_interpolator, tolerance_in_seconds= Microsecond(1))
+        test_interpolator, tolerance_in_seconds= Nanosecond(4))
 
     ## Assert
-    test_ok =  abs(zero_doppler_time- expected_zero_doppler_time) < Microsecond(1)
+    test_ok =  abs(zero_doppler_time- expected_zero_doppler_time) <= Nanosecond(4)
     
     ## Debug
     if !test_ok
