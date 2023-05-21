@@ -7,7 +7,7 @@ function sar2gray_test(T::Type,size_to_test)
     img = SARProcessing.sar2gray(data)
 
     ## Assert
-    testOk = (size(img) == size_to_test) && (eltype(img) <: Images.Gray)
+    testOk = (size(img) == size_to_test) && (eltype(img) <: SARProcessing.Images.Gray)
 
     ## Debug
     if !testOk
@@ -27,7 +27,7 @@ function sar2gray_SARImage_test()
 
     ## Assert
     testOk = size(gray_image) == size(SARProcessing.get_data(image))
-    testOk &= eltype(gray_image) <: Images.Gray
+    testOk &= eltype(gray_image) <: SARProcessing.Images.Gray
 
     ## Debug
     if !testOk
