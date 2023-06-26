@@ -17,7 +17,7 @@ function metadata_sentinel1_test()
     slcMetadata = SARProcessing.Sentinel1MetaData(SENTINEL1_SLC_METADATA_TEST_FILE)
     checkStructures = isdefined(slcMetadata, :header) && isdefined(slcMetadata, :product) && isdefined(slcMetadata, :image) && isdefined(slcMetadata, :swath) && isdefined(slcMetadata, :bursts) && isdefined(slcMetadata, :geolocation)
     if !checkStructures
-        println("Error in metadata_sentinel1_test")
+        println("Debug info: ", string(StackTraces.stacktrace()[1].func))
     end
     return checkStructures
 end
@@ -69,15 +69,14 @@ end
 
 function header_test()
     meta_dict = SARProcessing.read_xml_as_dict(SENTINEL1_SLC_METADATA_TEST_FILE)
-    reference_time = SARProcessing.get_reference_time(meta_dict)
 
-    header = SARProcessing.Sentinel1Header(meta_dict,reference_time)
+    header = SARProcessing.Sentinel1Header(meta_dict)
     #testing if data exists in header
     checkTimes = !isnothing(header.start_time)
-    checkTypes = typeof(header.start_time) == Float64 && typeof(header.stop_time) == Float64
+    checkTypes = header.start_time isa TimesDates.TimeDate && header.stop_time isa TimesDates.TimeDate 
     check = checkTimes && checkTypes
     if !check
-        println("Error in Sentinel1Header")
+        println("Debug info: ", string(StackTraces.stacktrace()[1].func))
         println("Start time ", header.start_time)
         println("Stop time: ", header.stop_time)
     end
@@ -97,7 +96,7 @@ function productInformationTest()
 
     check = checkrange_sampling_rate && checkTypes && checkTypesProduct2
     if !check 
-        println("Error in Product data")
+        println("Debug info: ", string(StackTraces.stacktrace()[1].func))
         println("Samplig rate", product.range_sampling_rate, "of type ", typeof(product.range_sampling_rate))
 
     end
@@ -115,7 +114,7 @@ function sentinel1_image_information_test()
     check &= round(Int,image_info.azimuth_pixel_spacing) ==14 
 
     if !check
-        println("Error in Image data")
+        println("Debug info: ", string(StackTraces.stacktrace()[1].func))
     end
     return check
 end
@@ -125,8 +124,7 @@ end
 function sentinel1_geolocation_grid_test()
 
     meta_dict = SARProcessing.read_xml_as_dict(SENTINEL1_SLC_METADATA_TEST_FILE)
-    reference_time = SARProcessing.get_reference_time(meta_dict)
-    geolocation = SARProcessing.Sentinel1GeolocationGrid(meta_dict,reference_time);
+    geolocation = SARProcessing.Sentinel1GeolocationGrid(meta_dict);
     ## Assert
  
     check = length(geolocation.lines)==210
@@ -140,7 +138,7 @@ function sentinel1_geolocation_grid_test()
 
 
     if !check
-        println("Error in sentinel1_geolocation_grid_test")
+        println("Debug info: ", string(StackTraces.stacktrace()[1].func))
         println(checkGeolocation1)
         println(checkGeolocation2)
         println(checkGeolocation3)
@@ -154,29 +152,49 @@ end
 function sentinel1_burst_test()
     #Action
     meta_dict = SARProcessing.read_xml_as_dict(SENTINEL1_SLC_METADATA_TEST_FILE)
-    reference_time = SARProcessing.get_reference_time(meta_dict)
-    bursts = SARProcessing.get_sentinel1_burst_information(meta_dict,reference_time);
+    bursts = SARProcessing.read_sentinel1_burst_information(meta_dict);
 
     ## Assert
     check = length(bursts) == 9
     check &= isapprox(bursts[1].doppler_centroid.t0,0.00534423320003329; atol = 0.000000001)
     check &= isapprox(bursts[8].doppler_centroid.t0,0.005342927742124565; atol = 0.000000001)
     check &= length(bursts[1].azimuth_fm_rate.polynomial) == 3
-    sensing_time = reference_time + Millisecond(round(Int,bursts[3].sensing_time *1000))
-    check &= sensing_time == DateTime(2022,09,18,07,49,28,166)   
+    check &= abs(TimesDates.TimeDate(2022,09,18,07,49,28,166)-bursts[3].sensing_time) < Millisecond(1)
     check &= isapprox(bursts[2].azimuth_fm_rate.t0 ,0.006018535512387027; atol = 0.000001) 
     check &= all([bursts[i].azimuth_time < bursts[i+1].azimuth_time for i in 1:length(bursts)-1])
 
-    # add stuff later
-
     if !check
-        println("Error in Sentinel1BurstInformation")
+        println("Debug info: ", string(StackTraces.stacktrace()[1].func))
         println("sensing_time: ", sensing_time)
         println("bursts[3].sensing_time: ", bursts[3].sensing_time)
-        println("reference_time ", reference_time)
     end
     return check
 end
+
+
+
+function sentinel1_burst_times_test()
+    ## Arrange
+    meta_dict = load_test_slc_image().metadata
+    
+    ## Act
+    start_time  = SARProcessing.get_burst_start_times(meta_dict)
+    mid_time    = SARProcessing.get_burst_mid_times(meta_dict)
+    end_time    = SARProcessing.get_burst_end_times(meta_dict)
+
+    ## Assert
+    check = length(start_time) == length(mid_time) 
+    check &= length(start_time) == length(end_time) 
+    check &= all((start_time[2:end] .- start_time[1:end-1]) .> Millisecond(0))
+    check &=  all((start_time .< mid_time) .& (mid_time .< end_time))
+
+    if !check
+        println("Debug info: ", string(StackTraces.stacktrace()[1].func))
+        
+    end
+    return check
+end
+
 
 @testset "Sentinel1Metadata.jl" begin
     ####### actual tests ###############
@@ -187,4 +205,8 @@ end
     @test sentinel1_image_information_test()
     @test productInformationTest()
     @test sentinel1_burst_test()
+
+    @test SARProcessing.get_burst_duration(load_test_slc_image().metadata) > 0
+    @test SARProcessing.get_burst_duration(load_test_slc_image().metadata) > 0
+    @test sentinel1_burst_times_test()
 end

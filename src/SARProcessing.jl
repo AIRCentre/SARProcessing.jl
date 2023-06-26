@@ -1,14 +1,13 @@
 module SARProcessing
 using Dates, Statistics
-import XMLDict, Images, ArchGDAL, Polynomials, LinearAlgebra
-
-
-
-
+import XMLDict, Images, ArchGDAL, Polynomials, LinearAlgebra, TimesDates
 
 const LIGHT_SPEED = 299792458.0
 
+
+
 include("enums.jl")
+include("timeUtils.jl")
 include("SARImageInterface.jl")
 include("MetaDataUtils.jl")
 include("GeoCoding/GeoCoding.jl")

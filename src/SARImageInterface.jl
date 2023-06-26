@@ -74,11 +74,6 @@ function get_time_range(meta_data::T) where T <: MetaData
     throw(ErrorException("get_time_range(image::T) must be implemented for all MetaData types. Type: $T"))
 end
 
-function get_reference_time(meta_data::T) where T <: MetaData
-    throw(ErrorException("get_reference_time(image::T) must be implemented for all MetaData types. Type: $T"))
-end
-
-
 function get_incidence_angle_mid_degrees(meta_data::T) where T <: MetaData
-    throw(ErrorException("get_reference_time(image::T) must be implemented for all MetaData types. Type: $T"))
+    throw(ErrorException("get_incidence_angle_mid_degrees(image::T) must be implemented for all MetaData types. Type: $T"))
 end

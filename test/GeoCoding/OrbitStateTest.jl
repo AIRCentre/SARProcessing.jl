@@ -29,12 +29,12 @@ function interpolation_test()
     ## Arrange
     orbit_states = SARProcessing.load_precise_orbit_sentinel1(PRECISE_ORBIT_TEST_FILE)
 
-    reference_time =  DateTime("2022-10-29T23:04:32") #same as orbit_states[30].time
-    end_time =  Dates.value(orbit_states[40].time - reference_time) / 1000.0
-    time_35 = Dates.value(orbit_states[35].time - reference_time) / 1000.0 ## same as DateTime("2022-10-29T23:05:22")
+    start_time =  TimesDates.TimeDate("2022-10-29T23:04:32") #same as orbit_states[30].time
+    end_time = orbit_states[40].time
+    time_35 = orbit_states[35].time ## same as DateTime("2022-10-29T23:05:22")
 
     ## Act
-    interpolator = SARProcessing.orbit_state_interpolator(orbit_states,(0.0, end_time), reference_time)
+    interpolator = SARProcessing.orbit_state_interpolator(orbit_states,(start_time, end_time))
 
     ## Assert
 
@@ -45,7 +45,7 @@ function interpolation_test()
     testOk &= all(isapprox.(state_35_interpolated.velocity, orbit_states[35].velocity , atol = 1))
 
     #check point close to data assuming constant speed vs. interpolation
-    position_next_interpolated = interpolator(time_35 + 1).position
+    position_next_interpolated = interpolator(time_35 + Dates.Second(1)).position
     position_next_simple = orbit_states[35].position .+ orbit_states[35].velocity
 
     testOk &= all(isapprox.(position_next_interpolated, position_next_simple, atol = 10))
@@ -67,27 +67,24 @@ end
 function interpolation_multiple_test()  
     ## Arrange
     orbit_states = SARProcessing.load_precise_orbit_sentinel1(PRECISE_ORBIT_TEST_FILE)
-    ref_time1 = orbit_states[30].time
-    end_time1 = Dates.value(orbit_states[40].time.-ref_time1) /1000.0
-    ref_time2 = orbit_states[100].time
-    end_time2 =Dates.value(orbit_states[110].time.-ref_time2) /1000.0
+    
+    time_range1 = (orbit_states[30].time,orbit_states[40].time)
+    time_range2 = (orbit_states[100].time,orbit_states[110].time)
     
     ## Act
     # create two interpolators at the same time
-    interpolator1 = SARProcessing.orbit_state_interpolator(orbit_states,(0.0, end_time1), ref_time1)
-    interpolator2 = SARProcessing.orbit_state_interpolator(orbit_states,(0.0, end_time2), ref_time2)
+    interpolator1 = SARProcessing.orbit_state_interpolator(orbit_states, time_range1)
+    interpolator2 = SARProcessing.orbit_state_interpolator(orbit_states, time_range2)
 
     ## Assert
 
     #Check first interpolator
-    t_35 = Dates.value(orbit_states[35].time.-ref_time1) /1000.0
-    state_35_interpolated = interpolator1(t_35) 
+    state_35_interpolated = interpolator1(orbit_states[35].time) 
     testOk =  all(isapprox.(state_35_interpolated.position, orbit_states[35].position , atol = 1))
     testOk &= all(isapprox.(state_35_interpolated.velocity, orbit_states[35].velocity , atol = 1))
 
     #Check second interpolator
-    t_105 = Dates.value(orbit_states[105].time.-ref_time2)/1000.0
-    state_105_interpolated = interpolator2(t_105) 
+    state_105_interpolated = interpolator2(orbit_states[105].time) 
     testOk &=  all(isapprox.(state_105_interpolated.position, orbit_states[105].position , atol = 1))
     testOk &= all(isapprox.(state_105_interpolated.velocity, orbit_states[105].velocity , atol = 1))
 

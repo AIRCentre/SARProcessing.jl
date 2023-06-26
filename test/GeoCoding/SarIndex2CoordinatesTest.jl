@@ -12,8 +12,7 @@ function approx_point_test()
     orbit_states = SARProcessing.load_precise_orbit_sentinel1(PRECISE_ORBIT_TEST_FILE2)
     image = load_test_slc_image()
     interpolator = SARProcessing.orbit_state_interpolator(orbit_states,image.metadata)
-    time =  SARProcessing.parse_delta_time("2022-09-18T07:49:40.819491",image.metadata.reference_time)
-
+    time =  TimesDates.TimeDate("2022-09-18T07:49:40.819491")
     orbit_state = interpolator(time)
 
     ## act 

@@ -2,7 +2,7 @@
 using SARProcessing, Test, Dates, LinearAlgebra
 using Statistics
 
-import ArchGDAL, Images, Aqua
+import ArchGDAL, Aqua, TimesDates
 
 
 const PRECISE_ORBIT_TEST_FILE = "testData/S1A_OPER_AUX_POEORB_20221119T081845.EOF"
@@ -21,6 +21,8 @@ end
 
 
 @testset "Test of repos" begin
+    include("Utils/timeUtilsTest.jl")
+
     include("GeoCoding/CoordinateTransformationTest.jl")
     include("GeoCoding/OrbitStateTest.jl")
     include("GeoCoding/DEMTest.jl")
@@ -46,4 +48,8 @@ end
     include("object_detector/object_detector_operations_test.jl")
 
     Aqua.test_all(SARProcessing; ambiguities = false)
+    #=
+    Some of the dependencies have ambiguities. "ambiguities = false" is therefore needed to 
+    to complete the tests.
+    =#
 end

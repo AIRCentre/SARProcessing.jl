@@ -1,10 +1,11 @@
 
 struct OrbitState
-    time::Dates.DateTime
+    time::TimesDates.TimeDate
     position::Array{Float64,1}
     velocity::Array{Float64,1}
 end
 
+OrbitState(time::DateTime,position,velocity) = OrbitState(TimesDates.TimeDate(time),position,velocity)
 
 get_speed(state::OrbitState) = LinearAlgebra.norm(state.velocity)
 
@@ -26,39 +27,33 @@ Anonymous interpolation function. (Input: seconds_from_t_start::Float64, Output:
 function orbit_state_interpolator(orbit_states::Vector{OrbitState}, image::SARImage;
     polynomial_degree::Integer=4, margin::Integer = 3 )
 
-    orbit_state_interpolator(orbit_states, get_metadata(image);
-    polynomial_degree=polynomial_degree, margin = margin )
+    return orbit_state_interpolator(orbit_states, get_metadata(image); polynomial_degree=polynomial_degree, margin = margin )
 end
 
 function orbit_state_interpolator(orbit_states::Vector{OrbitState}, metadata::MetaData;
     polynomial_degree::Integer=4, margin::Integer = 3 )
 
     time_range = get_time_range(metadata)
-    reference_time = get_reference_time(metadata)
 
-    orbit_sate_start =  Dates.value(orbit_states[1].time-reference_time)/1000.0
-    orbit_sate_end = Dates.value(orbit_states[end].time-reference_time)/1000.0
     # check that the orbit states cover the image
-    @assert (orbit_sate_start < time_range[1]) &&
-            (time_range[2] < orbit_sate_end)
+    @assert (orbit_states[1].time < time_range[1]) &&
+            (time_range[2] < orbit_states[end].time )
 
-    orbit_state_interpolator(orbit_states, time_range, reference_time ;
-    polynomial_degree=polynomial_degree, margin = margin )
+    return orbit_state_interpolator(orbit_states, time_range; polynomial_degree=polynomial_degree, margin = margin )
 end
 
-function orbit_state_interpolator(orbit_states::Vector{OrbitState}, time_range, reference_time::DateTime;
-    polynomial_degree::Integer=4, margin::Integer = 3 )
+function orbit_state_interpolator(orbit_states::Vector{OrbitState}, time_range::Tuple{T,T};
+    polynomial_degree::Integer=4, margin::Integer = 3 ) where T <: Union{DateTime,TimesDates.TimeDate}
 
-
+    start_time = TimesDates.TimeDate(time_range[1])
+    
     #select orbit states
-    datetime_range =reference_time .+ Millisecond.(round.(Int,time_range .* 1000))
-    selected_orbit_states = _select_orbit_states(orbit_states, datetime_range, margin)
+    selected_orbit_states = _select_orbit_states(orbit_states, time_range, margin)
     @assert length(selected_orbit_states) > polynomial_degree "Expected polynomial degree to be smaller than length of selected orbit states"
 
     # Get times
     selected_times = [element.time for element in selected_orbit_states];
-
-    seconds = Float64.(Dates.value.(selected_times .- reference_time)) / 1000
+    seconds = period_to_float_seconds.(selected_times .- start_time)
 
     # normalise data
     position = [ state.position[i] for i=1:3, state in selected_orbit_states ];
@@ -71,17 +66,16 @@ function orbit_state_interpolator(orbit_states::Vector{OrbitState}, time_range, 
     velocity_polynomial = [Polynomials.fit(seconds, normalised_velocity[i,:], polynomial_degree) for i =1:3]
 
     ## create interpolation function
-    interpolator = t_seconds ->
+    interpolator = t ->
     begin
-        @assert ((time_range[1]) <= t_seconds) && (t_seconds <= (time_range[2]))  "t is outside time_range"
-
+        @assert ((selected_times[1]) <= t) && (t <= (selected_times[end]))  "t is outside time_range"
+        t_seconds = period_to_float_seconds(t - start_time)
         interpolated_position= _interpolate_3d_vector(t_seconds, position_polynomial,
             mean_position, std_position)
 
         interpolated_velocity= _interpolate_3d_vector(t_seconds, velocity_polynomial,
             mean_velocity, std_velocity)
 
-        t = reference_time + Millisecond(round(Int,t_seconds*1000))
         interpolated_orbit_state = OrbitState(t,interpolated_position, interpolated_velocity)
         return interpolated_orbit_state
     end
@@ -96,7 +90,7 @@ function _interpolate_3d_vector(x, polynomials, mean_values, std_values)
 end
 
 
-function _select_orbit_states(orbit_states::Vector{OrbitState}, time_range::Tuple{DateTime,DateTime}, margin::Integer = 3 )
+function _select_orbit_states(orbit_states::Vector{OrbitState}, time_range, margin::Integer = 3 )
 
     times = [element.time for element in orbit_states];
 

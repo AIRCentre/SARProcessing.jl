@@ -28,8 +28,8 @@ Base.@kwdef struct Sentinel1Header
     mission_data_take_id::Int
     swath::Int
     mode::String
-    start_time::Float64
-    stop_time::Float64
+    start_time::TimesDates.TimeDate
+    stop_time::TimesDates.TimeDate
     absolute_orbit_number::Int
     image_number::String
 end
@@ -82,29 +82,15 @@ end
 
 
 """
-    Sentinel1DopplerCentroid
+Sentinel1Polynomial
 
-returns structure of Sentinel1DopplerCentroid from metadata in .xml
-Sentinel1DopplerCentroid is calculated for each burst, and is therefore saved in each burst
 """
-Base.@kwdef struct Sentinel1DopplerCentroid
+Base.@kwdef struct Sentinel1Polynomial
     polynomial::Vector{Float64}
     t0::Float64
 end
 
 
-
-
-"""
-    Sentinel1AzimuthFmRate
-
-returns structure of Sentinel1AzimuthFmRate from metadata in .xml
-Sentinel1AzimuthFmRate is calculated for each burst, and is therefore saved in each burst
-"""
-Base.@kwdef struct Sentinel1AzimuthFmRate
-    polynomial::Vector{Float64}
-    t0::Float64
-end
 
 
 
@@ -117,16 +103,16 @@ Sentinel1BurstInformation contain information from Sentinel1DopplerCentroid and 
 """
 Base.@kwdef struct Sentinel1BurstInformation
     burst_number::Int32
-    azimuth_time::Float64
-    sensing_time::Float64
+    azimuth_time::TimesDates.TimeDate
+    sensing_time::TimesDates.TimeDate
     azimuth_anx_time::Float64
     byte_offset::Int64
     first_valid_sample::Vector{Int64}
     last_valid_sample::Vector{Int64}
     burst_id::Int64
     absolute_burst_id::Int64
-    azimuth_fm_rate::Sentinel1AzimuthFmRate
-    doppler_centroid::Sentinel1DopplerCentroid
+    azimuth_fm_rate::Sentinel1Polynomial
+    doppler_centroid::Sentinel1Polynomial
 end
 
 
@@ -141,7 +127,7 @@ Base.@kwdef struct Sentinel1GeolocationGrid
     samples::Vector{Int64}
     latitude::Vector{Float64}
     longitude::Vector{Float64}
-    azimuth_time::Vector{Float64}
+    azimuth_time::Vector{TimesDates.TimeDate}
     slant_range_time_seconds::Vector{Float64} # are stored as float because of accuracy
     elevation_angle::Vector{Float64}
     incidence_angle::Vector{Float64}
@@ -177,7 +163,6 @@ Can be accessed as, e.g.,
     slcMetadata.header.polarisation --> "VH"::String
 """
 Base.@kwdef struct Sentinel1MetaData <: MetaData
-    reference_time::DateTime
     header::Sentinel1Header
     product::Sentinel1ProductInformation
     image::Sentinel1ImageInformation
@@ -192,7 +177,6 @@ get_range_sampling_rate(meta_data::Sentinel1MetaData) = meta_data.product.range_
 get_azimuth_frequency(meta_data::Sentinel1MetaData) = meta_data.image.azimuth_frequency
 get_slant_range_time_seconds(meta_data::Sentinel1MetaData) = meta_data.image.slant_range_time_seconds
 get_time_range(meta_data::Sentinel1MetaData) = (meta_data.header.start_time, meta_data.header.stop_time)
-get_reference_time(meta_data::Sentinel1MetaData) = meta_data.reference_time
 get_incidence_angle_mid_degrees(meta_data::Sentinel1MetaData)= meta_data.image.incidence_angle_mid_swath
 
 function get_burst_start_times(meta_data::Sentinel1MetaData)
@@ -200,11 +184,11 @@ function get_burst_start_times(meta_data::Sentinel1MetaData)
 end
 
 function get_burst_mid_times(meta_data::Sentinel1MetaData)
-    return get_burst_start_times(meta_data) .+ get_burst_duration(meta_data)/2
+    return get_burst_start_times(meta_data) .+ float_seconds_to_period(get_burst_duration(meta_data)/2)
 end
 
 function get_burst_end_times(meta_data::Sentinel1MetaData)
-    return get_burst_start_times(meta_data) .+ get_burst_duration(meta_data)
+    return get_burst_start_times(meta_data) .+ float_seconds_to_period(get_burst_duration(meta_data))
 end
 
 function get_burst_duration(meta_data::Sentinel1MetaData)
@@ -217,7 +201,7 @@ end
 function get_burst_row_offset(meta_data::Sentinel1MetaData)
     azimuth_frequency = get_azimuth_frequency(meta_data)
     bursts_start_times = get_burst_start_times(meta_data)
-    time_delta_bursts = bursts_start_times .- meta_data.header.start_time
+    time_delta_bursts = period_to_float_seconds.(bursts_start_times .- meta_data.header.start_time)
     burst_row_offset = time_delta_bursts.* azimuth_frequency
     return burst_row_offset
 end
